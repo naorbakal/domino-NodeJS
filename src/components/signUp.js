@@ -20,6 +20,7 @@ class SignUp extends React.Component {
                     <label> name: </label>
                     <input name="userName"/>                        
                     <input type="submit" value="Login"/>
+                    <label>{this.state.errMessage}</label>
                 </form>
             </div>
         );
