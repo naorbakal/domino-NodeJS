@@ -2,12 +2,9 @@ import React from 'react';
 import Room from './room.js';
 import ReactDOM from 'react-dom';
 
-
-
 export default class Lobby extends React.Component{
     constructor(props){
         super(props);
-        //console.log(props);
         this.state = {
             showAddRoom : false,
             rooms : null,
@@ -22,10 +19,8 @@ export default class Lobby extends React.Component{
         getRooms() {
             this.fetchRoomsInfo()
             .then(roomsInfo => {
-                console.log(roomsInfo);
                 if(roomsInfo.length !== 0){
                 let roomsArr = JSON.parse(roomsInfo);
-                console.log(roomsArr);
                 this.setState(()=>({rooms: roomsArr}));
                 }
             })
@@ -57,7 +52,7 @@ export default class Lobby extends React.Component{
         .then(response => {
             if(!response.ok){
                 if (response.status === 403) {
-                    this.setState(() => ({errMessage: "User name already exist, please try another one"}));
+                    this.setState(() => ({errMessage: "Room name already exist, please try another one"}));
                 }
             }
             else{
@@ -66,6 +61,24 @@ export default class Lobby extends React.Component{
             }
         })
     }
+
+    handleRoomEntering(roomId){
+        let user = {
+            userName: this.props.userName,
+            roomId: roomId
+        };
+
+        fetch('/rooms/enterRoom', {method:'POST',body: JSON.stringify(user) ,credentials: 'include'})
+        .then(response => {
+            if(!response.ok){
+                
+            }
+            else{
+                this.props.enteredRoomSuccessfully(roomId);
+            }
+        })
+
+    }
     
     render(){
 
@@ -73,8 +86,9 @@ export default class Lobby extends React.Component{
         if(this.state.showAddRoom === false){
             if(this.state.rooms !== null){
                 roomItems = this.state.rooms.map((room) => {
-                    return <Room
+                    return <Room key={room.Id}
                     data={room}
+                    handleRoomEntering = {this.handleRoomEntering.bind(this)}
                     />
                 });
             }
@@ -82,6 +96,7 @@ export default class Lobby extends React.Component{
         return(
         <React.Fragment>
         <button onClick={() => this.setState(() => ({showAddRoom: true}))}>  Add Room </button>
+        <button onClick={this.props.logout}> Logout </button>
         <div>
             {roomItems}
         </div>
