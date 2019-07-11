@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import SignUp from './signUp.js';
+import Lobby from './lobby.js';
 import { type } from 'os';
 
 export default class BaseContainer extends React.Component {
@@ -11,8 +12,7 @@ export default class BaseContainer extends React.Component {
                 name: '',
                 location: "login",
                 roomId: null,
-            }
-            
+            }           
         };
         
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
@@ -28,10 +28,11 @@ export default class BaseContainer extends React.Component {
             return (<SignUp loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError}/>)
         }
 
-        else{
-            return (<h1>{this.state.currentUser.name}</h1>)
+        else if(this.state.currentUser.location === "lobby")
+        {
+            return (<Lobby userName={this.state.currentUser.name}/>)
+            //return (<h1>{this.state.currentUser.name}</h1>)
         }
-
     }
 
 
