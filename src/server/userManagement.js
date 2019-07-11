@@ -12,4 +12,15 @@ userManagement.post('/addUser', auth.addUserToAuthList, (req, res) => {
 	res.sendStatus(200);	
 });
 
+userManagement.post('/updateUser', auth.updateUserData, (req, res, next) => {		
+	res.sendStatus(200);
+});
+
+userManagement.get('/logout',
+	auth.removeUserFromAuthList,
+	(req, res) => {
+		res.sendStatus(200);		
+	}
+);
+
 module.exports = userManagement;
