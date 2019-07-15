@@ -10,6 +10,9 @@ function addUserToRoom(req,res,next){
     roomsList.forEach((room)=>{
         if (room.Id === request.roomId){
             room.players.push(request.userName);
+            if(room.amountOfPlayers === room.players.length){
+                room.started = true;
+            }
             next();
         }
     });
@@ -37,6 +40,22 @@ function addRoomToList(req, res, next) {
     }
             
     }
-   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom}
+
+  function checkRoomFull(req, res, next){
+    let err = true;
+    const request = JSON.parse(req.body);
+    roomsList.forEach((room)=>{
+        if (room.Id === request.name){
+            res.json(JSON.stringify({started:room.started}));
+            err=false;
+            return
+        }
+    });
+    if(err){
+        res.sendStatus(401);
+    }    
+
+  }  
+   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull}
     
 

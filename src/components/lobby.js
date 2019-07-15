@@ -46,7 +46,7 @@ export default class Lobby extends React.Component{
         let room = {
             name: e.target.elements.name.value,
             creator: this.props.userName,
-            amountOfPlayers: e.target.elements.amountOfPlayers.value
+            amountOfPlayers: parseInt(e.target.elements.amountOfPlayers.value)
         }
         return fetch('/rooms/addRoom',{method:'POST', body: JSON.stringify(room) ,credentials: 'include'})
         .then(response => {

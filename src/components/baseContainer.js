@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import SignUp from './signUp.js';
 import Lobby from './lobby.js';
+import GameIndex from '../gameApp/gameIndex.js';
 import { type } from 'os';
 
 export default class BaseContainer extends React.Component {
@@ -12,6 +13,7 @@ export default class BaseContainer extends React.Component {
                 name: '',
                 location: "login",
                 roomId: null,
+                inActiveGame:false
             }           
         };
         
@@ -45,14 +47,39 @@ export default class BaseContainer extends React.Component {
             //return (<h1>{this.state.currentUser.name}</h1>)
         }
         else{
-           return ( <h1>In room! {this.state.currentUser.roomId}</h1> )
+            return <GameIndex gameStarted={this.state.currentUser.inActiveGame}/>
         }
+
     }
 
 
-    handleSuccessedRoomEntering(roomId){       
-        this.setState(()=>({currentUser: {location: "room", roomId: roomId}}));
-    }
+    handleSuccessedRoomEntering(roomId){  
+        let user=this.state.currentUser;
+        user.roomId=roomId;
+        user.location="room";
+        var gameStartedInterval=setInterval(() =>{
+                    fetch('/rooms/checkRoomFull',{method: 'POST',body:JSON.stringify({name: roomId}), credentials: 'include'})
+                    .then(response => {
+                        if (!response.ok){
+                            throw response;
+                        }  
+                        else{
+                            response.json().then((resBody)=>{
+                                resBody=JSON.parse(resBody);
+                                if (resBody.started === true){
+                                    user = this.state.currentUser;
+                                    user.inActiveGame=true;
+                                    clearInterval(gameStartedInterval);
+                                    this.setState(()=>({currentUser:user}));
+                                }      
+                                })   
+                        } 
+             }); 
+                }, 2000);
+                this.setState(()=>({currentUser:user}));           
+    }               
+  
+              
     handleSuccessedLogin(){
         this.getUserData();
     }
