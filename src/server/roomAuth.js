@@ -21,6 +21,11 @@ function addUserToRoom(req,res,next){
 function addRoomToList(req, res, next) {
     let err = false;
     const request = JSON.parse(req.body);
+    if(request.name === undefined || request.name === '' || !request.name.trim()){
+        res.status(405).send('name not allowed');
+        err = true;
+        return;
+	}
       roomsList.forEach((room)=>{
           if (room.Id === request.name){
             res.status(403).send('A room with the same name already exist');

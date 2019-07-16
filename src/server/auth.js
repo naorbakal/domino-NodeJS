@@ -10,8 +10,12 @@ function userAuthentication(req, res, next) {
 	}
 }
 
-function addUserToAuthList(req, res, next) {	
-	if (userList[req.session.id] !== undefined) {
+function addUserToAuthList(req, res, next) {
+	//console.log(userList[req.session.id]);
+	if(req.body === undefined || req.body === '' || !req.body.trim()){
+		res.status(405).send('name not allowed');
+	}
+	else if (userList[req.session.id] !== undefined) {
 		res.status(403).send('user already exist');
 	} else {		
 		for (sessionid in userList) {

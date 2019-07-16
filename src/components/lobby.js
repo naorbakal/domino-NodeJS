@@ -54,6 +54,9 @@ export default class Lobby extends React.Component{
                 if (response.status === 403) {
                     this.setState(() => ({errMessage: "Room name already exist, please try another one"}));
                 }
+                else{
+                    this.setState(() => ({errMessage: "Please insert room name"}));
+                }
             }
             else{
                 this.setState(() => ({showAddRoom: false, errMessage: ''}));
