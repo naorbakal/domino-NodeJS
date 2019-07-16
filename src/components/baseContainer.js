@@ -46,7 +46,9 @@ export default class BaseContainer extends React.Component {
                  logout={this.logoutHandler}/>)
         }
         else{
-            return <GameIndex gameStarted={this.state.currentUser.inActiveGame}/>
+            return <GameIndex 
+            gameStarted={this.state.currentUser.inActiveGame} 
+            roomId = {this.state.currentUser.roomId} />
         }
 
     }
