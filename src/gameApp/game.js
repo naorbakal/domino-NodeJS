@@ -13,7 +13,7 @@ import Clock from './clock';
 class Game extends React.Component {
     constructor(props){
         super(props);
-        this.state={roomId = props.roomId,
+        this.state={ roomId: props.roomId,
                     dominoTiles: new Array(),
                     playerTiles: new Array(),
                     boardTiles: new Array(),

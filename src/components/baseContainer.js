@@ -21,6 +21,7 @@ export default class BaseContainer extends React.Component {
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
         this.logoutHandler= this.logoutHandler.bind(this);
+        this.handleExitRoom = this.handleExitRoom.bind(this);
         this.handleSuccessedRoomEntering= this.handleSuccessedRoomEntering.bind(this);
         this.getUserData();
     }
@@ -36,19 +37,22 @@ export default class BaseContainer extends React.Component {
     
     render() {        
         if (this.state.currentUser.location === "login") {
-            return (<SignUp loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError}/>)
+            return (<SignUp 
+                loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError}/>)
         }
 
         else if(this.state.currentUser.location === "lobby")
         {
-            return (<Lobby userName={this.state.currentUser.name}
+            return (<Lobby className ="lobby"
+                 userName={this.state.currentUser.name}
                  enteredRoomSuccessfully={this.handleSuccessedRoomEntering}
                  logout={this.logoutHandler}/>)
         }
         else{
             return <GameIndex 
             gameStarted={this.state.currentUser.inActiveGame} 
-            roomId = {this.state.currentUser.roomId} />
+            roomId = {this.state.currentUser.roomId} 
+            handleExitRoom = {this.handleExitRoom}/>
         }
 
     }
@@ -120,12 +124,45 @@ export default class BaseContainer extends React.Component {
                 console.log(`failed to logout user ${this.state.currentUser.name} `, response);                
             }
             else{
+                let user = this.state.currentUser;
+                user.name = '';
+                user.location = "login";
+
+                /*
                 let user = {
                     name: '',
                     location: "login",
                     roomId: null
-                }     
+                }
+                */
                 this.setState(()=>({ currentUser : user }));
+            }
+        })
+    }
+
+    handleExitRoom(){
+            fetch('/rooms/exitRoom',{method: 'POST',
+            body:JSON.stringify({name: this.state.currentUser.roomId, 
+                                playerToRemove: this.state.currentUser.name}),
+                                 credentials: 'include'})
+            .then(response => {
+                if (!response.ok){
+                    throw response;
+                }  
+                else{
+                    /*
+                    let user = {
+                        location: "lobby",
+                        roomId: null,
+                        inActiveGame: false                       
+                    };
+                    */
+                    this.setState(()=>({ currentUser:{ 
+                        name: this.state.currentUser.name,
+                        location: "lobby",
+                        roomId: null,
+                        inActiveGame: false    
+                    } }));
             }
         })
     }

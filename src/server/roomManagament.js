@@ -14,7 +14,10 @@ roomManagement.post('/addRoom', roomAuth.addRoomToList, (req, res) => {
 roomManagement.post('/enterRoom', roomAuth.addUserToRoom, (req,res,next) => {
 	res.sendStatus(200)});
 
-roomManagement.post('/checkRoomFull', roomAuth.checkRoomFull);	
+roomManagement.post('/checkRoomFull', roomAuth.checkRoomFull);
+
+roomManagement.post('/exitRoom', roomAuth.exitRoom, (req, res, next) => {
+	res.sendStatus(200)});
 	
 
 module.exports = roomManagement;

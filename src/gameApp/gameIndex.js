@@ -14,7 +14,16 @@ import background from "./gameBackground.jpg";
       return  <Wrapper roomId = {props.roomId} />
      }
      else{
-        return <h1>Waiting For Players</h1>
+        return( 
+        <React.Fragment>
+        <div className = "form">
+        <div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        <h1>Waiting For Players</h1>
+
+        <button onClick={props.handleExitRoom} className="exit-room"> Exit Room </button>
+        </div>
+        </React.Fragment>
+        )
      }
  };
 

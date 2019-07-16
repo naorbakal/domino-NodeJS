@@ -95,8 +95,8 @@ export default class Lobby extends React.Component{
 
         return(
         <React.Fragment>
-        <button onClick={() => this.setState(() => ({showAddRoom: true}))}>  Add Room </button>
-        <button onClick={this.props.logout}> Logout </button>
+        <button onClick={() => this.setState(() => ({showAddRoom: true}))} className="add-room"> Add Room </button>
+        <button onClick={this.props.logout} className="logout"> Logout </button>
         <div>
             {roomItems}
         </div>
@@ -106,14 +106,14 @@ export default class Lobby extends React.Component{
         else{ //showAddRoom = true
             return(
             <div>
-                <form onSubmit={this.handleAddRoom}>
+                <form onSubmit={this.handleAddRoom} className="form">
                     <label> name: </label>
                     <input name="name"/>  <br />
                     <label> number of players: </label> <br />
                     <input type="radio" name="amountOfPlayers" value="2" defaultChecked/> 2 <br />
                     <input type="radio" name="amountOfPlayers" value="3"/> 3 <br />
-                    <input type="submit" value="add"/>
-                    <label>{this.state.errMessage}</label>
+                    <input type="submit" value="Add" className ="btn-login"/>
+                    <label className = "error-message">{this.state.errMessage}</label>
                 </form>
             </div>
             )

@@ -55,7 +55,26 @@ function addRoomToList(req, res, next) {
         res.sendStatus(401);
     }    
 
-  }  
-   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull}
+  }
+
+  function exitRoom(req, res, next){
+    const request = JSON.parse(req.body);
+
+    roomsList.forEach(room => {
+        if( room.Id === request.name){
+            for(var i=0; i<room.players.length; i++){
+                if(room.players[i] === request.playerToRemove){
+                   room.players.splice(i,1);
+                   break;
+                }
+            }
+        }
+    })
+    
+    next();
+  }
+
+
+   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull, exitRoom}
     
 
