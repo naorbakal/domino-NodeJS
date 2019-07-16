@@ -15,7 +15,7 @@ function Wrapper(props){
     return (
     <React.Fragment> 
        <Header />
-        <Game roomId ={props.roomId}/>
+        <Game roomId ={props.roomId} name={props.playerName}/>
     </React.Fragment>
     );
 };
