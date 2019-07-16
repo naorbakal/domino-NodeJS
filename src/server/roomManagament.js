@@ -16,6 +16,8 @@ roomManagement.post('/enterRoom', roomAuth.addUserToRoom, (req,res,next) => {
 
 roomManagement.post('/checkRoomFull', roomAuth.checkRoomFull);
 
+roomManagement.post('/exitRoom', roomAuth.exitRoom, (req, res, next) => {
+	res.sendStatus(200)});
 	
 
 module.exports = roomManagement;

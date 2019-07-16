@@ -7,7 +7,7 @@ import { type } from 'os';
 function Room(props){
     let roomStatus;
     let players = props.data.players.map(player => {return <h3>{player} </h3>});
-    let handleRoomEntering= (e)=>{
+    let handleRoomEntering = (e)=>{
         e.preventDefault();
         props.handleRoomEntering(props.data.Id);
     }
@@ -18,17 +18,17 @@ function Room(props){
     else{
         roomStatus = <div>
             <p>Waiting for players....</p>
-            <button onClick={handleRoomEntering}> Enter Room</button>
+            <button onClick={handleRoomEntering} className="enter-room-btn"> Enter Room </button>
             </div>
     }
 
 
     return(
-        <div>
-        <h3> name: {props.data.Id} </h3> <br/>
-        <h3> number of players: {props.data.amountOfPlayers}</h3> <br/>
-        <h3> creator: {props.data.creator} </h3> <br/>
-        <h3> players:  </h3>  <br/>
+        <div className="room">
+        <p> name: {props.data.Id} </p> <br/>
+        <p> number of players: {props.data.amountOfPlayers}</p> <br/>
+        <p> creator: {props.data.creator} </p> <br/>
+        <p> players:  </p>  <br/>
         {players} <br/>
         {roomStatus}
         </div>

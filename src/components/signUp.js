@@ -11,16 +11,15 @@ class SignUp extends React.Component {
         };
         this.handleLogin=this.handleLogin.bind(this);
     }
-
     
     render() {
         return (
             <div>
-                <form onSubmit={this.handleLogin}>
-                    <label> name: </label>
+                <form onSubmit={this.handleLogin}  className= "form">
+                    <label className ="login-text"> Login Domino Game </label>
                     <input name="userName"/>                        
-                    <input type="submit" value="Login"/>
-                    <label>{this.state.errMessage}</label>
+                    <input type="submit" value="Login" className= "btn-login"/>
+                    <label className = "error-message">{this.state.errMessage}</label>
                 </form>
             </div>
         );
