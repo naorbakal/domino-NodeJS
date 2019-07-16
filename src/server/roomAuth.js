@@ -53,9 +53,17 @@ function addRoomToList(req, res, next) {
     });
     if(err){
         res.sendStatus(401);
-    }    
-
+    } 
+    
   }  
-   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull}
+
+  function getRoomPlayers(roomId){
+    roomsList.forEach((room)=>{
+        if (room.Id === roomId){
+            return ({players:room.players});
+        }
+    });    
+}
+   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull, getRoomPlayers}
     
 

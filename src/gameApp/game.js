@@ -13,7 +13,7 @@ import Clock from './clock';
 class Game extends React.Component {
     constructor(props){
         super(props);
-        this.state={roomId = props.roomId,
+        this.state={roomId: props.roomId,
                     dominoTiles: new Array(),
                     playerTiles: new Array(),
                     boardTiles: new Array(),
@@ -30,10 +30,32 @@ class Game extends React.Component {
         this.history = new Array();
         this.endGame = false;
         this.newGame = true;
+        this.firstPlayer=false;
+
+        fetch('/games/startGame', {method:'POST', body: ({roomId:props.roomId}), credentials: 'include'})
+        .then(response =>{
+            if(response.status === "200"){
+                this.firstPlayer = true;
+            }
+        });       
     }
 
     componentDidMount(){
-        this.startNewGame();
+        if(this.firstPlayer===true){
+            let boardTiles;
+            this.startNewGame();
+            boardTiles = this.state.boardObj.getOccupiedCells();
+            fetch('/games/startGame', {method:'POST', body: ({roomId:this.props.roomId,boardTiles:boardTiles,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
+
+        }
+        else{
+            fetch('/games/getGameData', {method:'POST', body: ({roomId:this.props.roomId}), credentials: 'include'})
+            .then(response => {
+                response.json().then(resJson =>{
+                    this.startNewGame(resJson.boardTiles,resJson.dominoTiles);   
+                })
+            });
+        }
     }
 
     componentDidUpdate(){
@@ -57,15 +79,21 @@ class Game extends React.Component {
 
     }
 
-    startNewGame(){
-        //this.newGame = true;
+    startNewGame(boardTiles=null,i_dominoTiles=null){
+        let dominoTiles =  i_dominoTiles;
+        boardObj.initBoard();
 
-        let dominoTiles = this.createTiles();
+        if(boardTiles === null && i_dominoTiles === null){
+            dominoTiles = this.createTiles();
+        }
+        else{
+            boardObj.insertToBoard(boardTiles);
+        }
+
         let playerTiles = this.chooseStartingTiles(dominoTiles);
         this.needDraw = false;
         this.gameStartingTime = Date.now();
         let score = this.getPlayerScore(playerTiles);
-        boardObj.initBoard();
         this.endGame = false;
         this.newGame = false;
         this.history = new Array();

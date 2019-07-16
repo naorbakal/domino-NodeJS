@@ -25,6 +25,25 @@ class BoardObj{
             }
         }
     }
+
+    getOccupiedCells(){
+        res=new Array();
+        for(let i=0; i<this.width; i++){
+            this.matrix[i] = new Array(this.height);
+            for(let j=0; j<this.height; j++){
+                if( this.matrix[i][j].dominoTile.location === "board"){
+                    res.push({tile:this.matrix[i][j].dominoTile,position:{row:j,col:i}})
+                }
+            }
+        }
+        return res;
+    }
+
+    insertToBoard(boardCells){
+      boardCells.forEach(element => {
+            this.matrix[element.position.col][element.position.row].dominoTile=element.tile;         
+      });
+    }
     getPossibleMoves(selectedTile){
         this.possibleMoves = new Array();
         let angle;
