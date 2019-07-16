@@ -45,7 +45,7 @@ function updateUserData(req,res,next){
 		console.log(userList[sessionid]);
 		const name = userList[sessionid].name;
 		if (name === requestBody.name) {
-			userList[sessionid].updateUserData(requestBody.userName,requestBody.location, requestBody.roomId);
+			userList[sessionid].updateUserData(requestBody.name,requestBody.location, requestBody.roomId);
 		}
 		next();
 	}

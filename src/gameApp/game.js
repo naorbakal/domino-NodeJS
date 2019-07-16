@@ -13,7 +13,8 @@ import Clock from './clock';
 class Game extends React.Component {
     constructor(props){
         super(props);
-        this.state={dominoTiles: new Array(),
+        this.state={roomId = props.roomId,
+                    dominoTiles: new Array(),
                     playerTiles: new Array(),
                     boardTiles: new Array(),
                     board: this.deepCopy(boardObj.matrix),

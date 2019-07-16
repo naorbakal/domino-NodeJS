@@ -4,6 +4,7 @@ import style from "./style.css";
 import Header from "./header.js";
 import Game from "./game.js";
 import background from "./gameBackground.jpg";
+import { prependOnceListener } from 'cluster';
 
 /* Directly adding react element */
 // ReactDOM.render(
@@ -11,14 +12,13 @@ import background from "./gameBackground.jpg";
 //     document.getElementById("root")
 // );
 
-
-const Wrapper = () => {
+function Wrapper(props){
     return (
     <React.Fragment> 
        <Header />
-        <Game />
+        <Game roomId ={props.roomId}/>
     </React.Fragment>
-        );
-    };
+    );
+};
 
 export default Wrapper;
