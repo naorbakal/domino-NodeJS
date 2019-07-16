@@ -13,7 +13,7 @@ export default class BaseContainer extends React.Component {
                 name: '',
                 location: "login",
                 roomId: null,
-                inActiveGame:false
+                inActiveGame: false
             }           
         };
         
@@ -44,7 +44,6 @@ export default class BaseContainer extends React.Component {
             return (<Lobby userName={this.state.currentUser.name}
                  enteredRoomSuccessfully={this.handleSuccessedRoomEntering}
                  logout={this.logoutHandler}/>)
-            //return (<h1>{this.state.currentUser.name}</h1>)
         }
         else{
             return <GameIndex gameStarted={this.state.currentUser.inActiveGame}/>
@@ -57,7 +56,7 @@ export default class BaseContainer extends React.Component {
         let user=this.state.currentUser;
         user.roomId=roomId;
         user.location="room";
-        var gameStartedInterval=setInterval(() =>{
+        let gameStartedInterval=setInterval(() =>{
                     fetch('/rooms/checkRoomFull',{method: 'POST',body:JSON.stringify({name: roomId}), credentials: 'include'})
                     .then(response => {
                         if (!response.ok){
@@ -67,7 +66,6 @@ export default class BaseContainer extends React.Component {
                             response.json().then((resBody)=>{
                                 resBody=JSON.parse(resBody);
                                 if (resBody.started === true){
-                                    user = this.state.currentUser;
                                     user.inActiveGame=true;
                                     clearInterval(gameStartedInterval);
                                     this.setState(()=>({currentUser:user}));
@@ -114,10 +112,8 @@ export default class BaseContainer extends React.Component {
 
 
     logoutHandler() {
-        console.log("check");
         fetch('/users/logout', {method: 'GET', credentials: 'include'})
         .then(response => {
-            console.log("check1");
             if (!response.ok) {
                 console.log(`failed to logout user ${this.state.currentUser.name} `, response);                
             }

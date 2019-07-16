@@ -43,8 +43,8 @@ function updateUserData(req,res,next){
 	const requestBody = JSON.parse(req.body);
 	for (sessionid in userList) {
 		const name = userList[sessionid].name;
-		if (name === requestBody.userName) {
-			userList[sessionid].updateUserData(requestBody.userName,requestBody.location, requestBody.roomId);
+		if (name === requestBody.name) {
+			userList[sessionid].updateUserData(requestBody.name,requestBody.location, requestBody.roomId);
 		}
 		next();
 	}
