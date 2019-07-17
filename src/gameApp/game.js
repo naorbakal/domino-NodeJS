@@ -37,9 +37,7 @@ class Game extends React.Component {
         this.newGame = true;
         this.firstPlayer=false;
         this.performUpdate=false;
-
-        
-    
+        this.boardUpdateObj=null;
     }
 
     componentDidMount(){
@@ -55,7 +53,6 @@ class Game extends React.Component {
                     }
                 })
                 .then(()=>{
-                    console.log(this.firstPlayer);
                     if(this.firstPlayer===true){
                         this.startNewGame();
                     }
@@ -69,7 +66,7 @@ class Game extends React.Component {
                                         fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                                         .then(response => {
                                             response.json().then(resJson =>{
-                                                this.startNewGame(resJson.boardTiles,resJson.dominoTiles);
+                                                this.startNewGame(resJson.dominoTiles);
                                                 boardObj.isEmpty = false;   
                                             })
                                         });
@@ -90,10 +87,11 @@ class Game extends React.Component {
     componentDidUpdate(){
         this.needDraw = this.checkIfNeedDraw();
         if(this.performUpdate===true){
-            let boardTiles = boardObj.getOccupiedCells();
-            fetch('/games/updateGame', {method:'POST', body: JSON.stringify({roomId:this.props.roomId,boardTiles:boardTiles,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
-            this.performUpdate=false;
-            this.waitYourTurn();
+            fetch('/games/updateGame', {method:'POST', body: JSON.stringify({roomId:this.props.roomId,boardTiles:this.boardUpdateObj,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
+            .then(()=>{
+                this.waitYourTurn();  
+            })
+            this.performUpdate=false;                   
         }
     }
 
@@ -106,16 +104,22 @@ class Game extends React.Component {
                         fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                         .then(response => {
                             response.json().then(resJson =>{
-                                boardObj.insertToBoard(resJson.boardTiles);
-                                let tempBoardTiles=resJson.boardTiles.map((element)=>{
-                                    return element.tile;
-                                });
-                                this.setState({
-                                      boardTiles:tempBoardTiles,
-                                      board: this.deepCopy(boardObj.matrix),
-                                      dominoTiles:resJson.dominoTiles,
-                                      whosTurn:this.props.name
+                                if(resJson.boardTiles.selectedTile!==undefined){
+                                    boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
+                                    let tempBoardTiles=boardObj.matrix.filter((element)=>{
+                                        return this.checkTileLocation(element,"board");
                                     });
+                                                         
+                                this.setState({
+                                    boardTiles:tempBoardTiles,
+                                    board: this.deepCopy(boardObj.matrix),
+                                    dominoTiles:resJson.dominoTiles,
+                                    whosTurn:this.props.name
+                                  });
+                                }
+                                else{
+                                    this.setState({whosTurn:resJson.player});
+                                }
                             })
                         });
                         clearInterval(myTurn);
@@ -145,19 +149,12 @@ class Game extends React.Component {
 
     }
 
-    startNewGame(i_boardTiles=null,i_dominoTiles=null){
+    startNewGame(i_dominoTiles=null){
         let dominoTiles =  i_dominoTiles;
-        let boardTiles;
         boardObj.initBoard();
-        if(i_boardTiles === null && i_dominoTiles === null){
+        if(i_dominoTiles === null){
             dominoTiles = this.createTiles();
-            boardTiles=new Array();
         }
-        else{
-            boardObj.insertToBoard(i_boardTiles);
-            boardTiles=i_boardTiles;
-        }
-
         let playerTiles = this.chooseStartingTiles(dominoTiles);
         this.needDraw = false;
         this.gameStartingTime = Date.now();
@@ -169,7 +166,6 @@ class Game extends React.Component {
         this.performUpdate=true;
         this.setState({dominoTiles: dominoTiles,
                        playerTiles: playerTiles,
-                       boardTiles: boardTiles,
                        board: this.deepCopy(boardObj.matrix),
                        statistics:{
                         turnsSoFar: 0,
@@ -344,7 +340,7 @@ class Game extends React.Component {
         game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});
         game.boardTiles.push(selectedTile);
         boardObj.updateBoard(selectedTile,{row: selectedPossibleMove.row,col: selectedPossibleMove.col});
-
+        this.boardUpdateObj={selectedTile:selectedTile,position:{row: selectedPossibleMove.row,col: selectedPossibleMove.col}};
         game.board = boardObj.matrix;
         this.updateStatistics(game);
         
