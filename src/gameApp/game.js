@@ -106,9 +106,8 @@ class Game extends React.Component {
                             response.json().then(resJson =>{
                                 if(resJson.boardTiles!==null){
                                     boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
-                                    let tempBoardTiles=boardObj.getOccupiedCells();
-                                this.setState({
-                                    boardTiles:tempBoardTiles,
+                                    this.setState({
+                                    boardTiles:resJson.boardTiles.boardTiles,
                                     board: this.deepCopy(boardObj.matrix),
                                     dominoTiles:resJson.dominoTiles,
                                     whosTurn:this.props.name
@@ -337,7 +336,7 @@ class Game extends React.Component {
         game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});
         game.boardTiles.push(selectedTile);
         boardObj.updateBoard(selectedTile,{row: selectedPossibleMove.row,col: selectedPossibleMove.col});
-        this.boardUpdateObj={selectedTile:selectedTile,position:{row: selectedPossibleMove.row,col: selectedPossibleMove.col}};
+        this.boardUpdateObj={boardTiles:game.boardTiles,selectedTile:selectedTile,position:{row: selectedPossibleMove.row,col: selectedPossibleMove.col}};
         game.board = boardObj.matrix;
         this.updateStatistics(game);
         
@@ -389,7 +388,7 @@ class Game extends React.Component {
         game.boardTiles.push(selectedTile);
         game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});     
         boardObj.updateBoard(selectedTile,boardPosition);
-        this.boardUpdateObj={selectedTile:selectedTile,position:{row: boardPosition.row,col: boardPosition.col}};
+        this.boardUpdateObj={boardTiles:game.boardTiles,selectedTile:selectedTile,position:{row: boardPosition.row,col: boardPosition.col}};
         game.board = boardObj.matrix;
         this.updateStatistics(game);   
     }
