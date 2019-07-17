@@ -32,7 +32,7 @@ class BoardObj{
             for(let j=0; j<this.height; j++){
                 if(this.matrix[i][j].dominoTile !== null){
                     if( this.matrix[i][j].dominoTile.location === "board"){
-                        res.push({cell:this.matrix[i][j],position:{row:i, col:j}});
+                        res.push(this.matrix[i][j].dominoTile);
                     }
                 }
             }
