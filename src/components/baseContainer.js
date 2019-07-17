@@ -51,7 +51,8 @@ export default class BaseContainer extends React.Component {
         else{
             return <GameIndex 
             gameStarted={this.state.currentUser.inActiveGame} 
-            roomId = {this.state.currentUser.roomId} 
+            roomId = {this.state.currentUser.roomId}
+            playerName={this.state.currentUser.name} 
             handleExitRoom = {this.handleExitRoom}/>
         }
 

@@ -9,12 +9,16 @@ import Statistics from './statistics';
 import DominoTileObj from "./dominoTileTObj";
 import {boardObj} from "./boardObj";
 import Clock from './clock';
+import { type } from 'os';
+
 
 class Game extends React.Component {
     constructor(props){
         super(props);
-        this.state={ roomId: props.roomId,
+        this.state={ 
+                    roomId: props.roomId,
                     name:props.name,
+                    whosTurn: null,
                     dominoTiles: new Array(),
                     playerTiles: new Array(),
                     boardTiles: new Array(),
@@ -32,49 +36,96 @@ class Game extends React.Component {
         this.endGame = false;
         this.newGame = true;
         this.firstPlayer=false;
+        this.performUpdate=false;
 
         
-        fetch('/games/startGame', {method:'POST', body: ({roomId:props.roomId}), credentials: 'include'});
-
-        fetch('/games/whosTurn', {method:'POST', body: ({roomId:props.roomId}), credentials: 'include'})
-        .then(response =>{
-            response.json().then(resJson =>{
-                if(resJson.player === props.name){
-                    this.firstPlayer = true;
-                }
-            })     
-        });       
+    
     }
 
     componentDidMount(){
-        if(this.firstPlayer===true){
-            this.startNewGame();
-        }
-        else{
-            let myTurn=setInterval(()=>{
-                fetch('/games/whosTurn', {method:'POST', body: ({roomId:this.props.roomId}), credentials: 'include'})
-                .then(response =>{
-                    response.json().then(resJson =>{
-                        if(resJson.player === props.name){
-                            fetch('/games/getGameData', {method:'POST', body:({roomId:this.props.roomId}), credentials: 'include'})
-                            .then(response => {
+        fetch('/games/startGame', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+        .then((res)=>{
+            fetch('/games/firstPlayer', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+            .then(response =>{
+                response.json().then(resJson =>{
+                    console.log(resJson.firstPlayer);
+                    if(resJson.firstPlayer === this.props.name){
+                        this.firstPlayer = true;
+                        console.log(this.firstPlayer);
+                    }
+                })
+                .then(()=>{
+                    console.log(this.firstPlayer);
+                    if(this.firstPlayer===true){
+                        this.startNewGame();
+                    }
+                    else{
+                        let myTurn=setInterval(()=>{
+                            fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+                            .then(response =>{
                                 response.json().then(resJson =>{
-                                    this.startNewGame(resJson.boardTiles,resJson.dominoTiles);   
-                                })
-                            });
-                            clearInterval(myTurn);
-                        }
-                    })     
-                }); 
-            },2000);
-
-        }
+                                    this.setState({whosTurn:resJson.player})
+                                    if(resJson.player === this.props.name){
+                                        fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+                                        .then(response => {
+                                            response.json().then(resJson =>{
+                                                this.startNewGame(resJson.boardTiles,resJson.dominoTiles);
+                                                boardObj.isEmpty = false;   
+                                            })
+                                        });
+                                        clearInterval(myTurn);
+                                    }
+                                })     
+                            }); 
+                        },2000);
+                    }
+                });     
+            })
+            
+        })
+     
+     
     }
 
     componentDidUpdate(){
         this.needDraw = this.checkIfNeedDraw();
-        boardTiles = this.state.boardObj.getOccupiedCells();
-        fetch('/games/updateGame', {method:'POST', body: ({roomId:this.props.roomId,boardTiles:boardTiles,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
+        if(this.performUpdate===true){
+            let boardTiles = boardObj.getOccupiedCells();
+            fetch('/games/updateGame', {method:'POST', body: JSON.stringify({roomId:this.props.roomId,boardTiles:boardTiles,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
+            this.performUpdate=false;
+            this.waitYourTurn();
+        }
+    }
+
+    waitYourTurn(){
+        let myTurn=setInterval(()=>{
+            fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+            .then(response =>{
+                response.json().then(resJson =>{
+                    if(resJson.player === this.props.name){
+                        fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+                        .then(response => {
+                            response.json().then(resJson =>{
+                                boardObj.insertToBoard(resJson.boardTiles);
+                                let tempBoardTiles=resJson.boardTiles.map((element)=>{
+                                    return element.tile;
+                                });
+                                this.setState({
+                                      boardTiles:tempBoardTiles,
+                                      board: this.deepCopy(boardObj.matrix),
+                                      dominoTiles:resJson.dominoTiles,
+                                      whosTurn:this.props.name
+                                    });
+                            })
+                        });
+                        clearInterval(myTurn);
+                    }
+                    else{
+                        this.setState({whosTurn:resJson.player});
+                    }
+                })     
+            }); 
+        },2000);
     }
 
     checkIfPlayerWinOrLoose(game){
@@ -94,15 +145,17 @@ class Game extends React.Component {
 
     }
 
-    startNewGame(boardTiles=null,i_dominoTiles=null){
+    startNewGame(i_boardTiles=null,i_dominoTiles=null){
         let dominoTiles =  i_dominoTiles;
+        let boardTiles;
         boardObj.initBoard();
-
-        if(boardTiles === null && i_dominoTiles === null){
+        if(i_boardTiles === null && i_dominoTiles === null){
             dominoTiles = this.createTiles();
+            boardTiles=new Array();
         }
         else{
-            boardObj.insertToBoard(boardTiles);
+            boardObj.insertToBoard(i_boardTiles);
+            boardTiles=i_boardTiles;
         }
 
         let playerTiles = this.chooseStartingTiles(dominoTiles);
@@ -112,17 +165,18 @@ class Game extends React.Component {
         this.endGame = false;
         this.newGame = false;
         this.history = new Array();
-        boardTiles = boardObj.getOccupiedCells();
-        fetch('/games/updateGame', {method:'POST', body: ({roomId:this.props.roomId,boardTiles:boardTiles,dominoTiles:dominoTiles}), credentials: 'include'})
+
+        this.performUpdate=true;
         this.setState({dominoTiles: dominoTiles,
                        playerTiles: playerTiles,
-                       boardTiles: new Array(),
+                       boardTiles: boardTiles,
                        board: this.deepCopy(boardObj.matrix),
                        statistics:{
                         turnsSoFar: 0,
                         averagePlayTime: 0,
                         withdrawals: 0,
-                        score : score}                      
+                        score : score},
+                        whosTurn:null                      
         });
     }
 
@@ -197,6 +251,9 @@ class Game extends React.Component {
             game.playerTiles.push(newTile);
             this.updateStatistics(game,true);
             this.checkIfPlayerWinOrLoose(game);
+
+            game.whosTurn=null;
+            this.performUpdate=true;
             this.setState(game);
         }
         else{
@@ -219,6 +276,8 @@ class Game extends React.Component {
         let selectedTile = this.findTile(game,selectedTileValues);
 
         if(boardObj.isEmpty === true){
+            game.whosTurn=null;
+            this.performUpdate=true;
             this.firstTurn(game, selectedTile);
             boardObj.isEmpty = false;
         }
@@ -297,7 +356,8 @@ class Game extends React.Component {
             }
         }
 
-        
+        game.whosTurn=null;
+        this.performUpdate=true;
         this.setState(game);
     }
 
@@ -407,12 +467,12 @@ class Game extends React.Component {
 
     
     render(){
-  
         return (
             <div className="game">
                 <div className="firstRow">
                     <Deck startNewGame={this.startNewGame.bind(this)} onClick={() => this.pullFromDeck()
                      } 
+                     whosTurn={this.state.whosTurn}
                      prevOnClickHandler={this.endGame === false ?
                      this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 
                      nextOnClickHandler={this.nextOnClickHandler.bind(this)}
@@ -424,7 +484,9 @@ class Game extends React.Component {
                     </div> 
                 <div className="secondRow">
                 <Player playerTiles={this.state.playerTiles} 
-                    dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}/>
+                    dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}
+                    myTurn={this.state.whosTurn === this.props.name ? true:false}
+                />
                 </div>    
             </div>
         )

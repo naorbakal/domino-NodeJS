@@ -13,8 +13,8 @@ app.use(bodyParser.text());
 
 app.use(express.static(path.resolve(__dirname, "..", "public")));
 
+app.use('/games',gameManagement);
 app.use('/users', userManagement);
 app.use('/rooms', roomManangment);
-app.use('/games',gameManagement);
 
 app.listen(3000, console.log('Example app listening on port 3000!'));

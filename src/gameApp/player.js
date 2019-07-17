@@ -6,6 +6,7 @@ import DominoTile from "./dominoTile";
 function Player(props) {
     const listItems = props.playerTiles.map((tile)=>{
        return <DominoTile
+        myTurn={props.myTurn}
         key={tile.values.top.toString() + tile.values.bottom.toString()}
         selected={tile.selected}
         tile={tile}

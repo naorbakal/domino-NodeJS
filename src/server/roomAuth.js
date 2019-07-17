@@ -58,11 +58,13 @@ function addRoomToList(req, res, next) {
   }  
 
   function getRoomPlayers(roomId){
+    let players=null;
     roomsList.forEach((room)=>{
         if (room.Id === roomId){
-            return ({players:room.players});
+            players= room.players;
         }
-    });    
+    });
+    return players;    
 }
 
   function exitRoom(req, res, next){

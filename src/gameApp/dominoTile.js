@@ -57,7 +57,7 @@ class DominoTile extends React.Component {
         return (
             <div 
                 className={this.getClassNames()}
-                onClick={this.props.onClickHandler === null? null:()=>{this.props.onClickHandler(this.props.tile.values)}}
+                onClick={(this.props.onClickHandler === null || this.props.myTurn===false)? null:()=>{this.props.onClickHandler(this.props.tile.values)}}
                 style={this.style}
                 >
                 <span className="line" />
