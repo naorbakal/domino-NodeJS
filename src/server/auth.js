@@ -45,13 +45,10 @@ function getUserInfo(id) {
 
 function updateUserData(req,res,next){
 	const requestBody = JSON.parse(req.body);
-	console.log(requestBody);
 	for (sessionid in userList) {
 		const name = userList[sessionid].name;
 		if (name === requestBody.name) {
-			console.log(userList[sessionid]);
 			userList[sessionid].updateUserData(requestBody.name,requestBody.location, requestBody.roomId);
-			console.log(userList[sessionid]);
 		}
 		next();
 	}

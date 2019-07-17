@@ -11,13 +11,14 @@ import background from "./gameBackground.jpg";
 //     document.getElementById("root")
 // );
 
-function Wrapper(props){
+
+const Wrapper = () => {
     return (
     <React.Fragment> 
        <Header />
-        <Game roomId ={props.roomId} name={props.playerName}/>
+        <Game />
     </React.Fragment>
-    );
-};
+        );
+    };
 
 export default Wrapper;

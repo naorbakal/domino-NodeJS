@@ -1,0 +1,459 @@
+@media  (max-width: 1024px) and (max-height: 768px){
+    .board{       
+        zoom: 80%; 
+    }
+    .player{
+        zoom: 80%; 
+    }
+}
+
+html,body{
+    background-image: url(./gameBackground.jpg);
+    margin: 0;
+    line-height: 0.9;
+    height: 100%;
+}
+#root{
+    height: 100%;
+}
+
+header {
+    background: rgb(7, 248, 176);
+    text-align: center;
+    top: 0;
+    left: 0;
+    right: 0; 
+    border-bottom: 1px solid black;  
+}
+
+h1{
+    margin-top: 0;
+}
+.redHighlight{
+    box-shadow: 10px -7px 15px red  , darkgray 0px 0px 3px inset !important;
+    -webkit-transform:translate(0px,-10px) !important ;
+    -moz-transform:translate(0px,-10px) !important;
+    -ms-transform:translate(0px,-10px) !important;
+    -o-transform:translate(0px,-10px) !important;
+    transform:translate(0px,-10px) !important;
+}
+
+.greenHighlight{
+    box-shadow: 10px -7px 15px rgb(33, 167, 16)  , darkgray 0px 0px 3px inset !important;
+    -webkit-transform:translate(0px,-10px) !important ;
+    -moz-transform:translate(0px,-10px) !important;
+    -ms-transform:translate(0px,-10px) !important;
+    -o-transform:translate(0px,-10px) !important;
+    transform:translate(0px,-10px) !important;
+}
+
+.firstRow{
+    display: flex;
+    flex: 1;
+}
+
+.secondRow{
+    display: flex;
+    justify-content: center;
+    flex:1;
+}
+.player{
+    background-color: rgb(7, 248, 176);
+    border-top-left-radius: .8em;
+    border-top-right-radius: .8em;
+    border-top: 2px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    display: flex;
+    flex-basis: 50%;
+}
+
+
+.wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.arrow-left { 
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent; 
+    border-right:20px solid black; 
+    cursor: pointer;
+  }
+
+  .arrow-right {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    cursor: pointer;
+    border-left: 20px solid black;
+  }
+.game {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.panel {
+   position: relative;
+   margin-top: 0;
+   background-color: rgb(7, 248, 176);
+   border-top: 2px solid black; 
+   border-bottom: 2px solid black;
+   display: flex; 
+   flex-direction: column;
+   justify-content: space-evenly;
+   align-items: center;
+   flex:1;
+}
+
+.deck{
+    border-bottom-right-radius: .8em;
+    border-top-right-radius: .8em;
+    border-right: 2px solid black;
+
+}
+
+.stat{
+    font-family: Tahoma, Geneva, sans-serif;
+	color:#000; 
+    border-bottom-left-radius: .8em;
+    border-top-left-radius: .8em;
+    border-left: 2px solid black;  
+    right: 0 !important;
+    text-align: center;
+}
+
+.board{
+        position: relative;
+        background-color: rgba(255, 255, 255, 0.212);
+        overflow: scroll;
+        display: flex;
+        flex: 8;
+}
+	
+.centered{
+   position: relative;
+}
+
+.hidden{
+    display: none !important;
+    
+}
+
+
+.dominoTile {
+    background-color: rgb(255, 255, 255);
+    font-size: 10px;
+    width: 3em;
+    height: 6em;
+    margin: 5px;
+    position: relative;
+    border-radius: .8em;
+    box-shadow: 0.1em 0.1em 0em 0.2em rgb(36, 36, 36);
+
+}
+
+.board .dominoTile {
+    box-shadow: 0em 0em 0em 0em rgb(36, 36, 36) !important;
+}
+
+.possibleMove {
+    background-color: rgba(43, 255, 0, 0.308);
+    font-size: 10px;
+    width: 3em;
+    height: 6em;
+    margin: 5px;
+    position: relative;
+    border-radius: .8em;
+    position: absolute;
+}
+
+.newGame{
+display: inline-block;
+padding:0.3em 1.2em;
+margin:0 0.3em 0.3em 0;
+border-radius:2em;
+box-sizing: border-box;
+text-decoration:none;
+font-family:'Roboto',sans-serif;
+font-weight:300;
+color:rgb(10, 10, 10);
+background-color:#4ef15c;
+text-align:center;
+transition: all 0.2s;
+    }
+
+ .newGame:hover{
+    background-color:#40c652;
+    }  
+
+.possibleMove:hover{
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    background-color: rgba(43, 255, 0, 0.5);
+    -webkit-box-shadow: 0px 0px 30px 0px rgba(0, 255, 0, 0.67);
+    -moz-box-shadow:    0px 0px 30px 0px rgba(0, 255, 0, 0.67);
+    box-shadow:         0px 0px 30px 0px rgba(0, 255, 0, 0.67);
+}
+
+.player .dominoTile{
+    
+    animation-name: takeFromDeck;
+    animation-duration: .5s;
+
+    -webkit-transition:all .3s ease-out;
+    -moz-transition:all .3s ease-out;
+    -ms-transition:all .3s ease-out;
+    -o-transition:all .3s ease-out;
+    transition:all .3s ease-out;
+
+}
+
+@keyframes takeFromDeck {
+    0%   { left:60%; top:auto}
+    100% { left:0%; top:auto;}
+}
+
+.player  .dominoTile:hover {
+    -webkit-transform:translate(0px,-10px);
+    -moz-transform:translate(0px,-10px);
+    -ms-transform:translate(0px,-10px);
+    -o-transform:translate(0px,-10px);
+    transform:translate(0px,-10px);
+}
+
+.board .dominoTile{
+    animation-name: placeOnBaord;
+    animation-duration: 0.5s;
+    position: absolute;
+}
+
+@keyframes placeOnBaord {
+    0%   {  font-size: 16px;
+             width: 3em;
+              height: 6em;}
+    100% {  font-size: 10px;
+        width: 3em;
+        height: 6em;
+    }
+}
+
+.endGame{
+    animation: glow 1s infinite alternate !important;
+}
+
+@keyframes glow {
+    from {
+      box-shadow: 0 0 10px -10px #aef4af;
+    }
+    to {
+      box-shadow: 0 0 10px 10px #aef4af;
+    }
+  }
+
+.vertical{
+    transform: rotate(0deg);
+}
+
+.horizontal90{
+    transform: rotate(90deg);
+}
+
+.horizontal270{
+    transform: rotate(270deg);
+
+}
+
+.upsideDown{
+    transform: rotate(180deg);
+}
+
+.line {
+    width: 2.8em;
+    height: .2em;
+    position: absolute;
+    top: 3em;
+    left: .10em;
+    background-color: black;
+}
+
+.ttl456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 0.6em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.tcl6 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 1.4em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.tbl23456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 2.2em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.tcc135 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 1.4em;
+    left: 1.25em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.ttr23456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 0.6em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.tcr6 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 1.4em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+
+.tbr456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 2.2em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+
+.btl456{
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 3.4em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.bcl6 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 4.3em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.bbl23456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 5.2em;
+    left: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.bcc135 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 4.3em;
+    left: 1.25em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.btr23456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 3.4em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.bcr6 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 4.3em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.bbr456 {
+    width: 0.5em;
+    height: 0.5em;
+    position: absolute;
+    top: 5.2em;
+    right: .6em;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.stopwatch {
+    position: relative;
+    top: 3%;
+    margin-top: -3px;
+    margin-left: -130px;
+	text-align:center;
+    transform: translate(-50%, -50%);
+    float: left;
+}
+.stat .clock {
+    margin-top:10%;
+    font-size: 30px;
+    position: relative;
+}
+.stat .statLabel{
+    font:bold;
+    margin-top:40%;
+    font-size: 15px;
+    position:relative;
+}
+
+.playerWrapper{
+    display:flex;
+    flex-direction: row;
+}
+
+.statLabel p{
+    
+}
+
+
+
+
+
+
