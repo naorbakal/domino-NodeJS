@@ -13,8 +13,7 @@ function Deck(props) {
         buttonClass = "hidden";
     }
     return(
-        <div className="panel deck">
-            <h4>{props.whosTurn+"'s " +"turn"}</h4>
+        <div className="panel deck"> 
             <div className="arrow-left" onClick={()=>props.prevOnClickHandler()}></div>          
             <button className="dominoTile " onClick= {props.onClick}>   
             </button> 
