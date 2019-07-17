@@ -32,7 +32,7 @@ class BoardObj{
             for(let j=0; j<this.height; j++){
                 if(this.matrix[i][j].dominoTile !== null){
                     if( this.matrix[i][j].dominoTile.location === "board"){
-                        res.push({tile:this.matrix[i][j].dominoTile,position:{row:i,col:j}})
+                        res.push({cell:this.matrix[i][j],position:{row:i, col:j}});
                     }
                 }
             }
@@ -42,8 +42,7 @@ class BoardObj{
 
     insertToBoard(boardCells){
       boardCells.forEach(element => {
-            this.matrix[element.position.col][element.position.row].dominoTile=element.tile;
-            this.matrix[element.position.col][element.position.row].location="board";         
+            this.matrix[element.position.row][element.position.col]=element.cell;
       });
     }
     getPossibleMoves(selectedTile){
