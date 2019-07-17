@@ -104,12 +104,9 @@ class Game extends React.Component {
                         fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                         .then(response => {
                             response.json().then(resJson =>{
-                                if(resJson.boardTiles.selectedTile!==undefined){
+                                if(resJson.boardTiles!==null){
                                     boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
-                                    let tempBoardTiles=boardObj.matrix.filter((element)=>{
-                                        return this.checkTileLocation(element,"board");
-                                    });
-                                                         
+                                    let tempBoardTiles=boardObj.getOccupiedCells();
                                 this.setState({
                                     boardTiles:tempBoardTiles,
                                     board: this.deepCopy(boardObj.matrix),
@@ -118,7 +115,7 @@ class Game extends React.Component {
                                   });
                                 }
                                 else{
-                                    this.setState({whosTurn:resJson.player});
+                                    this.setState({whosTurn:this.props.name});
                                 }
                             })
                         });
@@ -392,6 +389,7 @@ class Game extends React.Component {
         game.boardTiles.push(selectedTile);
         game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});     
         boardObj.updateBoard(selectedTile,boardPosition);
+        this.boardUpdateObj={selectedTile:selectedTile,position:{row: boardPosition.row,col: boardPosition.col}};
         game.board = boardObj.matrix;
         this.updateStatistics(game);   
     }
