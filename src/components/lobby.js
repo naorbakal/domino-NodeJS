@@ -7,11 +7,14 @@ export default class Lobby extends React.Component{
         super(props);
         this.state = {
             showAddRoom : false,
-            rooms : null,
+            rooms : new Array(),
             errMessage: ''
         };
 
-        this.getRooms();
+        this.fetchRoomsInterval;
+        this.fetchRoomsInterval = setInterval(()=>{
+            this.getRooms();
+        },2000);
 
         this.handleAddRoom = this.handleAddRoom.bind(this);
         };
@@ -19,7 +22,7 @@ export default class Lobby extends React.Component{
         getRooms() {
             this.fetchRoomsInfo()
             .then(roomsInfo => {
-                if(roomsInfo.length !== 0){
+                if((roomsInfo.length !== 0)){
                 let roomsArr = JSON.parse(roomsInfo);
                 this.setState(()=>({rooms: roomsArr}));
                 }
@@ -31,14 +34,15 @@ export default class Lobby extends React.Component{
             });
         }
     
-        fetchRoomsInfo() {        
+        fetchRoomsInfo(){ 
             return fetch('/rooms',{method: 'GET', credentials: 'include'})
-            .then(response => {            
-                if (!response.ok){
-                    throw response;
-                }              
-                return response.json();             
-            });
+                .then(response => {            
+                    if (!response.ok){
+                        throw response;
+                    }              
+                    return response.json();             
+                });
+     
         }
 
     handleAddRoom(e){
@@ -74,10 +78,10 @@ export default class Lobby extends React.Component{
                 
             }
             else{
+                clearInterval(this.fetchRoomsInterval);
                 this.props.enteredRoomSuccessfully(roomId);
             }
         })
-
     }
     
     render(){
