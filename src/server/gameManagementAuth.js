@@ -2,7 +2,6 @@ const roomAuth = require('./roomAuth');
 
 const games = new Map();
 
-let wasAwinner = false;
 
 function getGamePlayers(req,res,next){
     const request = JSON.parse(req.body);
@@ -15,11 +14,10 @@ function startGame(req,res,next){
     players = players.map((player)=>{
         return {player:player,statistics:null};
     })
-    console.log(players);
     let winners=new Array();
     if(games.get(request.roomId) === undefined){
         games.set(request.roomId,{players:players,boardTiles:null,dominoTiles:null, turn:0
-        ,winners:winners,outOfPlays:new Array(),endGame:false});
+        ,winners:winners,outOfPlays:new Array(),endGame:false,wasAwinner:false});
         next();
     }
     else{
@@ -46,11 +44,11 @@ function adjustNextPlayerIndex(nextPlayerName,game){
     game.turn=index;   
 }
 function setWinner(req,res,next){
-    wasAwinner = true;
     let index;
     let nextPlayerName;
     const request = JSON.parse(req.body); 
     const game = games.get(request.roomId);
+    game.wasAwinner = true;
     game.winners.push(request);
     swapPlayers(game);
     nextPlayerName=game.players[game.turn].player;
@@ -95,15 +93,14 @@ function whosTurn(req, res, next){
 function updateGame(req,res,next){
     const request = JSON.parse(req.body);
     const game=games.get(request.roomId);
-    if(!wasAwinner){
+    if(!game.wasAwinner){
         swapPlayers(game);
-        wasAwinner = false;
     }
     let index=game.players.map((e) =>{ return e.player; }).indexOf(request.player); 
     if(index !==-1){
         game.players[index].statistics = request.statistics;  
         games.set(request.roomId,{players:game.players,boardTiles:request.boardTiles,dominoTiles:request.dominoTiles,turn:game.turn
-            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame});
+            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame,wasAwinner:game.wasAwinner});
         
         }
         next();     
@@ -124,10 +121,7 @@ function swapPlayers(game){
 
 function deleteGame(req,res,next){
     const request = JSON.parse(req.body);
-    console.log(request.roomId);
-    console.log(games.has(request.roomId));
     games.delete(request.roomId); 
-    console.log(games.has(request.roomId));
     next();
 }
 
