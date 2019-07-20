@@ -10,12 +10,14 @@ import DominoTileObj from "./dominoTileTObj";
 import {boardObj} from "./boardObj";
 import Clock from './clock';
 import { type } from 'os';
+import BaseContainer from '../components/baseContainer';
 
 
 class Game extends React.Component {
     constructor(props){
         super(props);
         this.state={ 
+                    quitGame:false,
                     allPlayersFinished:false,
                     roomId: props.roomId,
                     name:props.name,
@@ -139,9 +141,7 @@ class Game extends React.Component {
                                         this.setState({whosTurn:this.props.name,
                                                      dominoTiles:resJson.dominoTiles
                                                     });
-                                    }
-                                    //this.winnersArr = resJson.winners;
-                                    //this.outOfPlaysArr = resJson.outOfPlays;    
+                                    }  
                                 })
                             });
                             clearInterval(myTurn);
@@ -580,16 +580,17 @@ class Game extends React.Component {
         return res;
     }
     quitGame(){
-        
+        this.setState({quitGame:true});   
     }
 
     
     render(){
+    if(this.state.quitGame===false){
         if(this.state.allPlayersFinished===false){
             return (
                 <div className="game">
                     <div className="firstRow">
-                        <Deck startNewGame={this.startNewGame.bind(this)} 
+                        <Deck quitGame={this.quitGame.bind(this)} 
                          onClick={this.state.whosTurn === this.props.name ? () => {this.pullFromDeck();}:()=>{ alert("Not your Turn");}}
                          whosTurn={this.state.whosTurn}
                          myTurn={this.state.whosTurn === this.props.name ? true:false}
@@ -618,11 +619,14 @@ class Game extends React.Component {
             return( 
                 <div className="form">
                 {endGameStatItems}
-                <button onClick={this.quitGame} className="logout"> Quit </button>
+                <button onClick={this.quitGameAndRemove} className="logout"> Quit </button>
                 </div>
             )
         }
-    
+       } 
+    else{
+        return (<BaseContainer name={this.state.name} location="lobby"/>)
+      }
     }
 }
 

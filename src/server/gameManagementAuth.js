@@ -36,7 +36,7 @@ function outOfPlays(req,res,next){
 
 
 function adjustNextPlayerIndex(nextPlayerName,game){
-    index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
+    let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
