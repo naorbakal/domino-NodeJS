@@ -10,6 +10,7 @@ function addUserToRoom(req,res,next){
     roomsList.forEach((room)=>{
         if (room.Id === request.roomId){
             room.players.push(request.userName);
+            console.log(room.players.length);
             if(room.amountOfPlayers === room.players.length){
                 room.started = true;
             }

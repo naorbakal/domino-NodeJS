@@ -40,11 +40,6 @@ class BoardObj{
         return res;
     }
 
-    insertToBoard(boardCells){
-      boardCells.forEach(element => {
-            this.matrix[element.position.row][element.position.col]=element.cell;
-      });
-    }
     getPossibleMoves(selectedTile){
         this.possibleMoves = new Array();
         let angle;
