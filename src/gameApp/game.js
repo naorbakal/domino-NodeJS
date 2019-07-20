@@ -358,7 +358,6 @@ class Game extends React.Component {
         let selectedTile = this.findTile(game,selectedTileValues);
 
         if(boardObj.isEmpty === true){
-            console.log("innn");
             this.performUpdate=true;
             this.firstTurn(game, selectedTile);
             boardObj.isEmpty = false;

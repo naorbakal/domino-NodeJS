@@ -10,7 +10,6 @@ function addUserToRoom(req,res,next){
     roomsList.forEach((room)=>{
         if (room.Id === request.roomId){
             room.players.push(request.userName);
-            //console.log(room.players.length);
             if(room.amountOfPlayers === room.players.length){
                 room.started = true;
             }
@@ -93,7 +92,6 @@ function addRoomToList(req, res, next) {
   function deleteRoom(req, res, next){
     const request = JSON.parse(req.body);
     let index=roomsList.map((e) =>{ return e.Id; }).indexOf(request.roomId); 
-    console.log(index);
     if (index !== -1) {
         roomsList.splice(index, 1);
     }

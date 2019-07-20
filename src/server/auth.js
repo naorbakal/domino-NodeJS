@@ -1,6 +1,6 @@
 
 const userData = require('./userData');
-const userList = {};
+const userList = [];
 
 function userAuthentication(req, res, next) {		
 	if (userList[req.session.id] === undefined) {				
@@ -27,6 +27,17 @@ function addUserToAuthList(req, res, next) {
 		userList[req.session.id] = new userData(req.body,"lobby");
 		next();
 	}
+}
+
+function getUsers(req, res, next){
+	console.log(userList);
+	let userNames = new Array();
+	for (sessionid in userList){
+		userNames.push(userList[sessionid].name);
+	}
+
+	console.log(userNames);
+	return (JSON.stringify(userNames));
 }
 
 function removeUserFromAuthList(req, res, next) {	
@@ -61,4 +72,4 @@ function removeUserFromAuthList(req, res, next) {
 		}
 	}
 
-module.exports = {userAuthentication, addUserToAuthList, removeUserFromAuthList, getUserInfo, updateUserData,removeUserFromAuthList};
+module.exports = {userAuthentication, addUserToAuthList, removeUserFromAuthList, getUserInfo, updateUserData,removeUserFromAuthList, getUsers};
