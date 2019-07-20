@@ -106,6 +106,7 @@ export default class Lobby extends React.Component{
         <button onClick={this.props.logout} className="logout"> Logout </button>
         <div>
             {roomItems}
+            
         </div>
         
         </React.Fragment>)

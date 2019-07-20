@@ -39,6 +39,8 @@ class Game extends React.Component {
         this.firstPlayer=false;
         this.performUpdate=false;
         this.boardUpdateObj=null;
+        this.winnersArr = new Array();
+        this.outOfPlaysArr = new Array();
 
     }
 
@@ -105,7 +107,10 @@ class Game extends React.Component {
             .then(response =>{
                 response.json().then(resJson =>{
                     if(resJson.endGame===true){
-                        this.setState({allPlayersFinished:true});        
+                        this.winnersArr = resJson.winners;
+                        this.outOfPlaysArr = resJson.outOfPlays;  
+                        this.setState({allPlayersFinished:true});     
+
                     }
                     else{
                         if(resJson.player.player === this.props.name){
@@ -136,6 +141,8 @@ class Game extends React.Component {
                                                      dominoTiles:resJson.dominoTiles
                                                     });
                                     }
+                                    //this.winnersArr = resJson.winners;
+                                    //this.outOfPlaysArr = resJson.outOfPlays;    
                                 })
                             });
                             clearInterval(myTurn);
@@ -151,7 +158,7 @@ class Game extends React.Component {
                             }
                         }
                     }
-                  
+
                 })     
             }); 
         },2000);
@@ -537,6 +544,43 @@ class Game extends React.Component {
             }
     }
 
+    getEndGameStatItems(){
+        let res = new Array();
+        let place = 1;
+        for(var i=0; i<this.winnersArr.length; i++){
+            //res.push({name: this.winnersArr.player ,statistics: this.winnersArr.statistics});
+            res.push(
+            <div>
+            <h2> In The {place} Place</h2>
+            <h3> Name: {this.winnersArr[i].player} </h3>
+            <h3> Total turns: {this.winnersArr[i].statistics.turnsSoFar}</h3>
+            <h3> Average Play Time: {this.winnersArr[i].statistics.averagePlayTime} </h3>
+            <h3> Withdrawals: {this.winnersArr[i].statistics.withdrawals} </h3>
+            <h3> Score: {this.winnersArr[i].statistics.score} </h3> 
+            </div>
+            );
+            place++;
+        }
+        for(var i=0; i<this.outOfPlaysArr.length; i++){
+            res.push(
+                <div>
+                <h2> In The {place} Place</h2>
+                <h3> Name: {this.outOfPlaysArr[i].player} </h3>
+                <h3> Total turns: {this.outOfPlaysArr[i].statistics.turnsSoFar}</h3>
+                <h3> Average Play Time: {this.outOfPlaysArr[i].statistics.averagePlayTime} </h3>
+                <h3> Withdrawals: {this.outOfPlaysArr[i].statistics.withdrawals} </h3>
+                <h3> Score: {this.outOfPlaysArr[i].statistics.score} </h3> 
+                </div>
+            );
+            place++;
+        }
+        return res;
+    }
+
+    quitGame(){
+        
+    }
+
     
     render(){
         if(this.state.allPlayersFinished===false){
@@ -565,7 +609,15 @@ class Game extends React.Component {
             )
         }
         else{
-            return(<h1>Game Ended!!</h1>)
+
+            let endGameStatItems = this.getEndGameStatItems();
+
+            return( 
+                <div className="form">
+                {endGameStatItems}
+                <button onClick={this.quitGame} className="logout"> Quit </button>
+                </div>
+            )
         }
     
     }

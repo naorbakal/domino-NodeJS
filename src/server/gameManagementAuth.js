@@ -82,7 +82,8 @@ function whosTurn(req, res, next){
     const request = JSON.parse(req.body);
     const game = games.get(request.roomId);
     const player = game.players[game.turn];
-    res.json({player:player,boardTiles:game.boardTiles,endGame:game.endGame});
+    res.json({player: player, boardTiles:game.boardTiles, endGame:game.endGame,
+     outOfPlays: game.outOfPlays, winners: game.winners});
 }
 
 
