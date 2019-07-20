@@ -4,7 +4,7 @@ import BaseContainer from "./components/baseContainer.js";
 
 const App = () => (
     <div>
-        <BaseContainer name='' location="login" />       
+        <BaseContainer name='' location="login"/>       
     </div>
 );
 

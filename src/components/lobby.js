@@ -86,6 +86,10 @@ export default class Lobby extends React.Component{
             }
         })
     }
+
+    componentWillUnmount(){
+        clearInterval(this.fetchRoomsInterval); 
+    }
     
     render(){
 

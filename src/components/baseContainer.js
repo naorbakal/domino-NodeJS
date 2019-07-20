@@ -14,17 +14,24 @@ export default class BaseContainer extends React.Component {
                 location: props.location,
                 roomId: null,
                 inActiveGame: false
-            }           
+            }   
         };
-        
+        console.log(this.state.currentUser.location);
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
         this.logoutHandler= this.logoutHandler.bind(this);
         this.handleExitRoom = this.handleExitRoom.bind(this);
         this.handleSuccessedRoomEntering= this.handleSuccessedRoomEntering.bind(this);
+        this.gameStartedInterval;
         this.getUserData();
     }
+
+    /*
+    componentWillUnmount(){
+        clearInterval(this.gameStartedInterval);
+    }
+    */
 
     componentDidUpdate(){
         return fetch('/users/updateUser',{method: 'POST', body:JSON.stringify(this.state.currentUser), credentials: 'include'})
@@ -63,7 +70,7 @@ export default class BaseContainer extends React.Component {
         let user=this.state.currentUser;
         user.roomId=roomId;
         user.location="room";
-        let gameStartedInterval=setInterval(() =>{
+        this.gameStartedInterval=setInterval(() =>{
                     fetch('/rooms/checkRoomFull',{method: 'POST',body:JSON.stringify({name: roomId}), credentials: 'include'})
                     .then(response => {
                         if (!response.ok){
@@ -74,14 +81,14 @@ export default class BaseContainer extends React.Component {
                                 resBody=JSON.parse(resBody);
                                 if (resBody.started === true){
                                     user.inActiveGame=true;
-                                    clearInterval(gameStartedInterval);
+                                    clearInterval(this.gameStartedInterval);
                                     this.setState(()=>({currentUser:user}));
                                 }      
                                 })   
                         } 
              }); 
                 }, 2000);
-                this.setState(()=>({currentUser:user}));           
+        this.setState(()=>({currentUser:user}));           
     }               
   
               

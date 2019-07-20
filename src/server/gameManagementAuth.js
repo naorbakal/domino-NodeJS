@@ -2,6 +2,8 @@ const roomAuth = require('./roomAuth');
 
 const games = new Map();
 
+let wasAwinner = false;
+
 
 function startGame(req,res,next){
     const request = JSON.parse(req.body);
@@ -34,24 +36,22 @@ function outOfPlays(req,res,next){
     res.json({endGame:game.endGame})
 }
 
-
 function adjustNextPlayerIndex(nextPlayerName,game){
     let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
+    wasAwinner = true;
     let index;
     let nextPlayerName;
     const request = JSON.parse(req.body); 
     const game = games.get(request.roomId);
-    if(game.players.length !== game.winners.length + 1){
-        game.winners.push(request);
-        swapPlayers(game);
-        nextPlayerName=game.players[game.turn].player;
-        index=game.players.map((e) =>{ return e.player; }).indexOf(request.name);     
-        game.players.splice(index, 1)
-        adjustNextPlayerIndex(nextPlayerName,game);
-    }
+    game.winners.push(request);
+    swapPlayers(game);
+    nextPlayerName=game.players[game.turn].player;
+    index=game.players.map((e) =>{ return e.player; }).indexOf(request.name);     
+    game.players.splice(index, 1)
+    adjustNextPlayerIndex(nextPlayerName,game);
     if(game.players.length === 1){
         game.outOfPlays.push(game.players[0]);
         game.endGame=true;
@@ -90,7 +90,10 @@ function whosTurn(req, res, next){
 function updateGame(req,res,next){
     const request = JSON.parse(req.body);
     const game=games.get(request.roomId);
-    swapPlayers(game);
+    if(!wasAwinner){
+        swapPlayers(game);
+        wasAwinner = false;
+    }
     let index=game.players.map((e) =>{ return e.player; }).indexOf(request.player); 
     if(index !==-1){
         game.players[index].statistics = request.statistics;  

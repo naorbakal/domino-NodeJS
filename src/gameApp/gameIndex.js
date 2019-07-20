@@ -11,7 +11,7 @@ import background from "./gameBackground.jpg";
 
  function GameIndex(props){
      if(props.gameStarted === true){
-      return  <Wrapper roomId = {props.roomId} playerName={props.playerName}/>
+      return  <Wrapper handleExitRoom={props.handleExitRoom} roomId = {props.roomId} playerName={props.playerName}/>
      }
      else{
         return( 
