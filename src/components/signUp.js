@@ -39,8 +39,9 @@ class SignUp extends React.Component {
                 }else{
                     this.setState(()=> ({errMessage: "User name already exist, please try another one"}));
                 }
-            }
                 this.props.loginErrorHandler();
+            }
+                
         });
         return false;
     }

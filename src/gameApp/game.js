@@ -43,8 +43,21 @@ class Game extends React.Component {
         this.boardUpdateObj=null;
         this.winnersArr = new Array();
         this.outOfPlaysArr = new Array();
+        this.handleExitRoom = this.props.handleExitRoom;
+
+        this.checkBoardChangesInterval;
+        this.myTurn1;
+        this.myTurn2;
 
     }
+
+    /*
+    componentWillUnmount(){
+        clearInterval(this.checkBoardChangesInterval);
+        clearInterval(this.myTurn);
+    }
+    */
+    
 
     componentDidMount(){
         fetch('/games/startGame', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
@@ -61,7 +74,7 @@ class Game extends React.Component {
                         this.startNewGame();
                     }
                     else{
-                        let myTurn=setInterval(()=>{
+                        this.myTurn1=setInterval(()=>{
                             fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                             .then(response =>{
                                 response.json().then(resJson =>{
@@ -72,7 +85,7 @@ class Game extends React.Component {
                                                 this.startNewGame(resJson.dominoTiles);
                                             })
                                         });
-                                        clearInterval(myTurn);
+                                        clearInterval(this.myTurn1);
                                     }
                                 })     
                             }); 
@@ -88,7 +101,6 @@ class Game extends React.Component {
 
     componentDidUpdate(){
         this.update();
-     
     }
 
     update(){
@@ -103,14 +115,15 @@ class Game extends React.Component {
     }
 
     waitYourTurn(){
-        let myTurn=setInterval(()=>{
+        this.myTurn2 = setInterval(()=>{
             fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
             .then(response =>{
                 response.json().then(resJson =>{
                     if(resJson.endGame===true){
                         this.winnersArr = resJson.winners;
                         this.outOfPlaysArr = resJson.outOfPlays;  
-                        this.setState({allPlayersFinished:true});     
+                        this.setState({allPlayersFinished:true}); 
+                        clearInterval(this.myTurn2);
 
                     }
                     else{
@@ -144,7 +157,7 @@ class Game extends React.Component {
                                     }  
                                 })
                             });
-                            clearInterval(myTurn);
+                            clearInterval(this.myTurn2);
                         }
                         else{
                             
@@ -208,14 +221,14 @@ class Game extends React.Component {
     }
 
     checkBoardChanges(){
-        let checkBoardChanges=setInterval(()=>{
+        this.checkBoardChangesInterval=setInterval(()=>{
             fetch('/games/checkBoardUpdate', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
             .then((res)=>{
                 res.json().then((resJson)=>{
                     this.setState({boardTiles:resJson.boardTiles.boardTiles});
                     if(resJson.endGame===true){
                         this.setState({allPlayersFinished:true});
-                        clearInterval(checkBoardChanges);
+                        clearInterval(this.checkBoardChangesInterval);
                     }
                 });
             });
@@ -512,9 +525,7 @@ class Game extends React.Component {
                 board: this.history[index].board,
                 statistics: this.history[index].statistics,
             });
-
-            this.history.pop();
-        
+            this.history.pop();       
         }     
     }
         
@@ -553,7 +564,7 @@ class Game extends React.Component {
         for(var i=0; i<this.winnersArr.length; i++){
             //res.push({name: this.winnersArr.player ,statistics: this.winnersArr.statistics});
             res.push(
-            <div>
+            <div key={this.winnersArr[i].name}>
             <h2> In The {place} Place</h2>
             <h3> Name: {this.winnersArr[i].name} </h3>
             <h3> Total turns: {this.winnersArr[i].statistics.turnsSoFar}</h3>
@@ -580,9 +591,11 @@ class Game extends React.Component {
         }
         return res;
     }
+    
     quitGame(){
-        this.setState({quitGame:true});
-    }   
+        this.handleExitRoom();
+    } 
+    
     
     quitGameAndRemove(){
         fetch('/rooms/deleteRoom', {method:'DELETE', body:JSON.stringify({roomId:this.state.roomId}), credentials: 'include'})
@@ -591,13 +604,12 @@ class Game extends React.Component {
                 throw response;
             }
             else{
-                this.quitGame();
+                this.quitGame();              
             }
         })
     }
     
     render(){
-    if(this.state.quitGame===false){
         if(this.state.allPlayersFinished===false){
             return (
                 <div className="game">
@@ -630,16 +642,12 @@ class Game extends React.Component {
             return( 
                 <div className="form">
                 {endGameStatItems}
-                <button onClick={this.quitGameAndRemove.bind(this)} className="logout"> Quit </button>
+                <button onClick={this.quitGameAndRemove.bind(this)} className="logout">
+                 Quit
+                </button>
                 </div>
             )
         }
-       } 
-    else{
-        return (
-        <BaseContainer name={this.state.name} location="lobby"/>
-        )
-      }
     }
 }
 

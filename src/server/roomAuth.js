@@ -92,7 +92,8 @@ function addRoomToList(req, res, next) {
 
   function deleteRoom(req, res, next){
     const request = JSON.parse(req.body);
-    let index=roomsList.map((e) =>{ return e.roomId; }).indexOf(request.roomId); 
+    let index=roomsList.map((e) =>{ return e.Id; }).indexOf(request.roomId); 
+    console.log(index);
     if (index !== -1) {
         roomsList.splice(index, 1);
     }
