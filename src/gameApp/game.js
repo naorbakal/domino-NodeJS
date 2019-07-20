@@ -566,11 +566,12 @@ class Game extends React.Component {
         }
         for(var i=0; i<this.outOfPlaysArr.length; i++){
             res.push(
-                <div>
+                <div key={this.outOfPlaysArr[i].player}>
                 <h2> In The {place} Place</h2>
                 <h3> Name: {this.outOfPlaysArr[i].player} </h3>
                 <h3> Total turns: {this.outOfPlaysArr[i].statistics.turnsSoFar}</h3>
-                <h3> Average Play Time: {this.outOfPlaysArr[i].statistics.averagePlayTime} </h3>
+                <h3> Average Play Time: {this.outOfPlaysArr[i].statistics.averagePlayTime} 
+                </h3>
                 <h3> Withdrawals: {this.outOfPlaysArr[i].statistics.withdrawals} </h3>
                 <h3> Score: {this.outOfPlaysArr[i].statistics.score} </h3> 
                 </div>
@@ -591,7 +592,6 @@ class Game extends React.Component {
             }
         })
     }
-
     
     render(){
         if(this.state.allPlayersFinished===false){
@@ -621,7 +621,6 @@ class Game extends React.Component {
             )
         }
         else{
-
             let endGameStatItems = this.getEndGameStatItems();
 
             return( 
