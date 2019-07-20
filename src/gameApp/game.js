@@ -48,15 +48,15 @@ class Game extends React.Component {
         this.checkBoardChangesInterval;
         this.myTurn1;
         this.myTurn2;
-
     }
 
-    /*
+    
     componentWillUnmount(){
         clearInterval(this.checkBoardChangesInterval);
-        clearInterval(this.myTurn);
+        clearInterval(this.myTurn1);
+        clearInterval(this.myTurn2);
     }
-    */
+    
     
 
     componentDidMount(){

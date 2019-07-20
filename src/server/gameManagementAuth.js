@@ -2,6 +2,8 @@ const roomAuth = require('./roomAuth');
 
 const games = new Map();
 
+let wasAwinner = false;
+
 
 function startGame(req,res,next){
     const request = JSON.parse(req.body);
@@ -39,6 +41,7 @@ function adjustNextPlayerIndex(nextPlayerName,game){
     game.turn=index;   
 }
 function setWinner(req,res,next){
+    wasAwinner = true;
     let index;
     let nextPlayerName;
     const request = JSON.parse(req.body); 
@@ -87,7 +90,10 @@ function whosTurn(req, res, next){
 function updateGame(req,res,next){
     const request = JSON.parse(req.body);
     const game=games.get(request.roomId);
-    swapPlayers(game);
+    if(!wasAwinner){
+        swapPlayers(game);
+        wasAwinner = false;
+    }
     let index=game.players.map((e) =>{ return e.player; }).indexOf(request.player); 
     if(index !==-1){
         game.players[index].statistics = request.statistics;  
