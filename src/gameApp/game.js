@@ -111,6 +111,7 @@ class Game extends React.Component {
                         this.winnersArr = resJson.winners;
                         this.outOfPlaysArr = resJson.outOfPlays;  
                         this.setState({allPlayersFinished:true});     
+                        clearInterval(myTurn);
 
                     }
                     else{
@@ -214,8 +215,8 @@ class Game extends React.Component {
                 res.json().then((resJson)=>{
                     this.setState({boardTiles:resJson.boardTiles.boardTiles});
                     if(resJson.endGame===true){
-                        this.setState({allPlayersFinished:true});
                         clearInterval(checkBoardChanges);
+                        this.setState({allPlayersFinished:true});
                     }
                 });
             });

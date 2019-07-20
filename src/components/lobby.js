@@ -78,7 +78,7 @@ export default class Lobby extends React.Component{
         fetch('/rooms/enterRoom', {method:'POST',body: JSON.stringify(user) ,credentials: 'include'})
         .then(response => {
             if(!response.ok){
-                
+                clearInterval(this.fetchRoomsInterval);
             }
             else{
                 clearInterval(this.fetchRoomsInterval);
