@@ -6,7 +6,7 @@ import { type } from 'os';
 
 function Room(props){
     let roomStatus;
-    let players = props.data.players.map(player => {return <h3>{player} </h3>});
+    let players = props.data.players.map(player => {return <h3 key={player}>{player} </h3>});
     let handleRoomEntering = (e)=>{
         e.preventDefault();
         props.handleRoomEntering(props.data.Id);

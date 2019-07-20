@@ -66,7 +66,6 @@ class Game extends React.Component {
                                         .then(response => {
                                             response.json().then(resJson =>{
                                                 this.startNewGame(resJson.dominoTiles);
-                                                boardObj.isEmpty = false;   
                                             })
                                         });
                                         clearInterval(myTurn);
@@ -142,13 +141,14 @@ class Game extends React.Component {
                         }
                         else{
                             
-                            this.setState({whosTurn:resJson.player.player});
+                            this.setState({whosTurn:boardObj.isEmpty === true ? this.props.name:resJson.player.player});
                             if(resJson.boardTiles!==null){
                                 boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
                                 this.setState({whosTurn:resJson.player.player,
                                                 boardTiles:resJson.boardTiles.boardTiles
                                                });
                             }
+                            
                         }
                     }
                   
@@ -227,7 +227,10 @@ class Game extends React.Component {
         this.endGame = false;
         this.newGame = false;
         this.history = new Array();
-
+        
+        if(this.firstPlayer===false){
+            boardObj.isEmpty = false
+        }
         this.performUpdate=true;
         this.setState({dominoTiles: dominoTiles,
                        playerTiles: playerTiles,
@@ -543,9 +546,10 @@ class Game extends React.Component {
             return (
                 <div className="game">
                     <div className="firstRow">
-                        <Deck startNewGame={this.startNewGame.bind(this)} onClick={() => this.pullFromDeck()
-                         } 
+                        <Deck startNewGame={this.startNewGame.bind(this)} 
+                         onClick={this.state.whosTurn === this.props.name ? () => {this.pullFromDeck();}:()=>{ alert("Not your Turn");}}
                          whosTurn={this.state.whosTurn}
+                         myTurn={this.state.whosTurn === this.props.name ? true:false}
                          prevOnClickHandler={this.endGame === false ?
                          this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 
                          nextOnClickHandler={this.nextOnClickHandler.bind(this)}
@@ -558,8 +562,8 @@ class Game extends React.Component {
                     <div className="secondRow">
                     <Player playerTiles={this.state.playerTiles} 
                         dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}
-                        myTurn={this.state.whosTurn === this.props.name ? true:false}
-                    />
+                        dominoTileOnClickHandler={this.state.whosTurn === this.props.name ?this.dominoTileOnClickHandler.bind(this):
+                        ()=>{ alert("Not your turn");} }                    />
                     </div>    
                 </div>
             )
