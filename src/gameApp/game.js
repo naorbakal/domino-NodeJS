@@ -555,7 +555,7 @@ class Game extends React.Component {
             res.push(
             <div>
             <h2> In The {place} Place</h2>
-            <h3> Name: {this.winnersArr[i].player} </h3>
+            <h3> Name: {this.winnersArr[i].name} </h3>
             <h3> Total turns: {this.winnersArr[i].statistics.turnsSoFar}</h3>
             <h3> Average Play Time: {this.winnersArr[i].statistics.averagePlayTime} </h3>
             <h3> Withdrawals: {this.winnersArr[i].statistics.withdrawals} </h3>
@@ -579,7 +579,6 @@ class Game extends React.Component {
         }
         return res;
     }
-
     quitGame(){
         
     }
