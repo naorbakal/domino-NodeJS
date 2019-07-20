@@ -4,13 +4,18 @@ const games = new Map();
 
 let wasAwinner = false;
 
-
+function getGamePlayers(req,res,next){
+    const request = JSON.parse(req.body);
+    let players = roomAuth.getRoomPlayers(request.roomId);
+    res.json({players:players})
+}
 function startGame(req,res,next){
     const request = JSON.parse(req.body);
     let players = roomAuth.getRoomPlayers(request.roomId);
     players = players.map((player)=>{
         return {player:player,statistics:null};
     })
+    console.log(players);
     let winners=new Array();
     if(games.get(request.roomId) === undefined){
         games.set(request.roomId,{players:players,boardTiles:null,dominoTiles:null, turn:0
@@ -37,7 +42,7 @@ function outOfPlays(req,res,next){
 }
 
 function adjustNextPlayerIndex(nextPlayerName,game){
-    let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
+    let index=game.players.map((e) =>{ return e.player;}).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
@@ -117,5 +122,14 @@ function swapPlayers(game){
     }
 }
 
-module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate}
+function deleteGame(req,res,next){
+    const request = JSON.parse(req.body);
+    console.log(request.roomId);
+    console.log(games.has(request.roomId));
+    games.delete(request.roomId); 
+    console.log(games.has(request.roomId));
+    next();
+}
+
+module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate, getGamePlayers, deleteGame}
 

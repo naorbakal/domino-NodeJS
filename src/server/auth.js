@@ -30,13 +30,10 @@ function addUserToAuthList(req, res, next) {
 }
 
 function getUsers(req, res, next){
-	console.log(userList);
 	let userNames = new Array();
 	for (sessionid in userList){
 		userNames.push(userList[sessionid].name);
 	}
-
-	console.log(userNames);
 	return (JSON.stringify(userNames));
 }
 

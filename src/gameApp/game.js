@@ -8,9 +8,6 @@ import Board from './board';
 import Statistics from './statistics';
 import DominoTileObj from "./dominoTileTObj";
 import {boardObj} from "./boardObj";
-import Clock from './clock';
-import { type } from 'os';
-import BaseContainer from '../components/baseContainer';
 
 
 class Game extends React.Component {
@@ -32,6 +29,7 @@ class Game extends React.Component {
                         withdrawals:0,
                         score:0
                     },
+                    players: new Array(),
                 };
         this.needDraw = false;
         this.gameStartingTime;
@@ -44,20 +42,48 @@ class Game extends React.Component {
         this.winnersArr = new Array();
         this.outOfPlaysArr = new Array();
         this.handleExitRoom = this.props.handleExitRoom;
-
+        this.players = new Array();
         this.checkBoardChangesInterval;
         this.myTurn1;
         this.myTurn2;
+        console.log(this.winnersArr);
+        this.getGamePlayers();
+
     }
 
-    
+
+
+    getGamePlayers(){
+        fetch('/games/getGamePlayers', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+        .then((res)=>{
+            res.json().then(resJson =>{
+                console.log(resJson);
+                this.players = resJson.players;
+            })
+        })
+    }
+
+    getUsers() {
+        this.fetchUsersInfo()
+        .then(users => {
+            let usersArr = JSON.parse(users);
+            this.setState(()=>({users: usersArr}));
+        })
+        .catch(err=>{            
+            if (err.status !== 401) { // incase we're getting 'unautorithed' as response
+                throw err;
+                 // in case we're getting an error
+            }
+        });
+    }
+
+
     componentWillUnmount(){
         clearInterval(this.checkBoardChangesInterval);
         clearInterval(this.myTurn1);
         clearInterval(this.myTurn2);
+        clearInterval(this.roomPlayers);
     }
-    
-    
 
     componentDidMount(){
         fetch('/games/startGame', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
@@ -597,6 +623,12 @@ class Game extends React.Component {
     
     
     quitGameAndRemove(){
+        fetch('/games/deleteGame', {method:'DELETE', body:JSON.stringify({roomId:this.state.roomId}), credentials: 'include'})
+        .then(response=> {            
+            if (!response.ok){
+                throw response;
+            }}); 
+
         fetch('/rooms/deleteRoom', {method:'DELETE', body:JSON.stringify({roomId:this.state.roomId}), credentials: 'include'})
         .then(response=> {            
             if (!response.ok){
@@ -605,7 +637,7 @@ class Game extends React.Component {
             else{
                 this.quitGame();              
             }
-        })
+        })    
     }
     
     render(){
@@ -616,6 +648,7 @@ class Game extends React.Component {
                         <Deck quitGame={this.quitGame.bind(this)} 
                          onClick={this.state.whosTurn === this.props.name ? () => {this.pullFromDeck();}:()=>{ alert("Not your Turn");}}
                          whosTurn={this.state.whosTurn}
+                         players={this.players}
                          myTurn={this.state.whosTurn === this.props.name ? true:false}
                          prevOnClickHandler={this.endGame === false ?
                          this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 

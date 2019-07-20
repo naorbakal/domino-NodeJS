@@ -53,9 +53,7 @@ export default class Lobby extends React.Component{
         getUsers() {
             this.fetchUsersInfo()
             .then(users => {
-                console.log(users);
                 let usersArr = JSON.parse(users);
-                console.log(usersArr);
                 this.setState(()=>({users: usersArr}));
             })
             .catch(err=>{            
@@ -136,7 +134,7 @@ export default class Lobby extends React.Component{
                 });
             }
         let userItems = this.state.users.map((user) => {
-            return <p> {user},</p>;
+            return <p key={user}> {user},</p>;
         })
         return(
         <React.Fragment>
