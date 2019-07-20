@@ -16,9 +16,10 @@ class Game extends React.Component {
     constructor(props){
         super(props);
         this.state={ 
+                    allPlayersFinished:false,
                     roomId: props.roomId,
                     name:props.name,
-                    whosTurn: null,
+                    whosTurn:"",
                     dominoTiles: new Array(),
                     playerTiles: new Array(),
                     boardTiles: new Array(),
@@ -38,6 +39,7 @@ class Game extends React.Component {
         this.firstPlayer=false;
         this.performUpdate=false;
         this.boardUpdateObj=null;
+
     }
 
     componentDidMount(){
@@ -46,10 +48,8 @@ class Game extends React.Component {
             fetch('/games/firstPlayer', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
             .then(response =>{
                 response.json().then(resJson =>{
-                    console.log(resJson.firstPlayer);
                     if(resJson.firstPlayer === this.props.name){
                         this.firstPlayer = true;
-                        console.log(this.firstPlayer);
                     }
                 })
                 .then(()=>{
@@ -61,8 +61,7 @@ class Game extends React.Component {
                             fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                             .then(response =>{
                                 response.json().then(resJson =>{
-                                    this.setState({whosTurn:resJson.player})
-                                    if(resJson.player === this.props.name){
+                                    if(resJson.player.player === this.props.name){
                                         fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
                                         .then(response => {
                                             response.json().then(resJson =>{
@@ -85,9 +84,14 @@ class Game extends React.Component {
     }
 
     componentDidUpdate(){
+        this.update();
+     
+    }
+
+    update(){
         this.needDraw = this.checkIfNeedDraw();
         if(this.performUpdate===true){
-            fetch('/games/updateGame', {method:'POST', body: JSON.stringify({roomId:this.props.roomId,boardTiles:this.boardUpdateObj,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
+            fetch('/games/updateGame', {method:'POST', body: JSON.stringify({player:this.props.name,statistics:this.state.statistics,roomId:this.props.roomId,boardTiles:this.boardUpdateObj,dominoTiles:this.state.dominoTiles}), credentials: 'include'})
             .then(()=>{
                 this.waitYourTurn();  
             })
@@ -100,52 +104,116 @@ class Game extends React.Component {
             fetch('/games/whosTurn', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
             .then(response =>{
                 response.json().then(resJson =>{
-                    if(resJson.player === this.props.name){
-                        fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
-                        .then(response => {
-                            response.json().then(resJson =>{
-                                if(resJson.boardTiles!==null){
-                                    boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
-                                    let tempBoardTiles=boardObj.getOccupiedCells();
-                                this.setState({
-                                    boardTiles:tempBoardTiles,
-                                    board: this.deepCopy(boardObj.matrix),
-                                    dominoTiles:resJson.dominoTiles,
-                                    whosTurn:this.props.name
-                                  });
-                                }
-                                else{
-                                    this.setState({whosTurn:this.props.name});
-                                }
-                            })
-                        });
-                        clearInterval(myTurn);
+                    if(resJson.endGame===true){
+                        this.setState({allPlayersFinished:true});        
                     }
                     else{
-                        this.setState({whosTurn:resJson.player});
+                        if(resJson.player.player === this.props.name){
+                            fetch('/games/getGameData', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+                            .then(response => {
+                                response.json().then(resJson =>{
+                                    if(resJson.boardTiles!==null){
+                                        if(resJson.boardTiles.movedAllDown === true){
+                                            boardObj.moveAllDown();
+                                            resJson.boardTiles.movedAllDown=false;
+                                        }
+                                        if(resJson.boardTiles.movedAllRight === true){
+                                            boardObj.moveAllRight();
+                                            resJson.boardTiles.movedAllRight=false;
+                                        }
+
+                                        boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
+                                        this.boardUpdateObj=resJson.boardTiles;
+                                        this.setState({
+                                        boardTiles:resJson.boardTiles.boardTiles,
+                                        board: this.deepCopy(boardObj.matrix),
+                                        dominoTiles:resJson.dominoTiles,
+                                        whosTurn:this.props.name
+                                      });
+                                    }
+                                    else{
+                                        this.setState({whosTurn:this.props.name,
+                                                     dominoTiles:resJson.dominoTiles
+                                                    });
+                                    }
+                                })
+                            });
+                            clearInterval(myTurn);
+                        }
+                        else{
+                            
+                            this.setState({whosTurn:resJson.player.player});
+                            if(resJson.boardTiles!==null){
+                                boardObj.updateBoard(resJson.boardTiles.selectedTile,resJson.boardTiles.position);
+                                this.setState({whosTurn:resJson.player.player,
+                                                boardTiles:resJson.boardTiles.boardTiles
+                                               });
+                            }
+                        }
                     }
+                  
                 })     
             }); 
         },2000);
     }
 
     checkIfPlayerWinOrLoose(game){
+        let allPlayersFinished=false
         if(game.playerTiles.length === 0){
             this.endGame = true;
-            alert("you win");    
+            this.performUpdate=true;
+            this.setState({whosTurn:""});
+            fetch('/games/setWinner', {method:'POST', body:JSON.stringify({roomId:this.props.roomId,name: this.props.name,statistics:game.statistics}), credentials: 'include'})
+            .then((res)=>{
+                res.json().then((resJson)=>{
+                    if(resJson.winnerNumber === 1){
+                        alert("You came in first place");    
+                    }
+                    else if(resJson.winnerNumber === 2){
+                        alert("You came in second place"); 
+                    }
+
+                    if(resJson.endGame===true){
+                        allPlayersFinished=true;
+                    }
+                    if(allPlayersFinished === true){
+                        this.setState({allPlayersFinished:true});
+                    }
+                    
+                else {
+                     this.checkBoardChanges()
+                }
+            })
+        })
             this.history.push(game)
-        }
+    }
         else{
+            this.performUpdate=true;
             let deck = game.dominoTiles.filter((tile)=>{return this.checkTileLocation(tile,"deck")});
             if(deck.length === 0 && this.needDraw === true){
-                this.endGame = true;
-                alert("you loose");
+                fetch('/games/outOfPlays', {method:'POST', body:JSON.stringify({roomId:this.props.roomId,player:this.props.name,statistics:game.statistics}), credentials: 'include'})
+                alert("You have no moves");
+                this.update();
                 this.history.push(game);
             }
         }
 
     }
 
+    checkBoardChanges(){
+        let checkBoardChanges=setInterval(()=>{
+            fetch('/games/checkBoardUpdate', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+            .then((res)=>{
+                res.json().then((resJson)=>{
+                    this.setState({boardTiles:resJson.boardTiles.boardTiles});
+                    if(resJson.endGame===true){
+                        this.setState({allPlayersFinished:true});
+                        clearInterval(checkBoardChanges);
+                    }
+                });
+            });
+        },2000);
+    }
     startNewGame(i_dominoTiles=null){
         let dominoTiles =  i_dominoTiles;
         boardObj.initBoard();
@@ -169,7 +237,6 @@ class Game extends React.Component {
                         averagePlayTime: 0,
                         withdrawals: 0,
                         score : score},
-                        whosTurn:null                      
         });
     }
 
@@ -245,7 +312,6 @@ class Game extends React.Component {
             this.updateStatistics(game,true);
             this.checkIfPlayerWinOrLoose(game);
 
-            game.whosTurn=null;
             this.performUpdate=true;
             this.setState(game);
         }
@@ -269,7 +335,7 @@ class Game extends React.Component {
         let selectedTile = this.findTile(game,selectedTileValues);
 
         if(boardObj.isEmpty === true){
-            game.whosTurn=null;
+            console.log("innn");
             this.performUpdate=true;
             this.firstTurn(game, selectedTile);
             boardObj.isEmpty = false;
@@ -283,8 +349,7 @@ class Game extends React.Component {
             else{
                 this.highlightDomino(game, selectedTileValues, "greenHighlight"); 
             }
-        }
-
+        }   
         this.setState(game);
     }
         
@@ -313,6 +378,8 @@ class Game extends React.Component {
         let game = this.deepCopy(this.state);
         this.history.push(this.state);
         let selectedTile = this.findSelectedTile(game);
+        let movedAllRight=false;
+        let movedAllDown=false
 
         if(selectedPossibleMove.position.top < 8){
             selectedPossibleMove.position.top +=20;
@@ -320,6 +387,7 @@ class Game extends React.Component {
             game.boardTiles.forEach((boardTile) => {
                 boardTile.position.top += 20;
             });
+            movedAllDown=true;
         }
         if(selectedPossibleMove.position.left < 8){
             selectedPossibleMove.position.left +=20;
@@ -327,6 +395,7 @@ class Game extends React.Component {
             game.boardTiles.forEach((boardTile) => {
                 boardTile.position.left += 20;
             });
+            movedAllRight=true;
         }
         boardObj.possibleMoves.length=0;
         selectedTile.selected = false;
@@ -335,9 +404,10 @@ class Game extends React.Component {
         selectedTile.angle = selectedPossibleMove.angle;
         selectedTile.location = "board";
         game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});
-        game.boardTiles.push(selectedTile);
         boardObj.updateBoard(selectedTile,{row: selectedPossibleMove.row,col: selectedPossibleMove.col});
-        this.boardUpdateObj={selectedTile:selectedTile,position:{row: selectedPossibleMove.row,col: selectedPossibleMove.col}};
+        game.boardTiles.push(selectedTile);
+        this.boardUpdateObj={boardTiles:game.boardTiles,selectedTile:selectedTile,position:{row: selectedPossibleMove.row,col: selectedPossibleMove.col},
+        movedAllDown:movedAllDown,movedAllRight:movedAllRight};
         game.board = boardObj.matrix;
         this.updateStatistics(game);
         
@@ -348,11 +418,18 @@ class Game extends React.Component {
                 game.boardTiles[i].endGame = true;
             }
         }
-
-        game.whosTurn=null;
         this.performUpdate=true;
         this.setState(game);
     }
+
+    updateDominoTiles(selectedTile,game){
+        game.dominoTiles.forEach(element => {
+            if(element.values.top === selectedTile.values.top &&
+               element.values.bottom === selectedTile.values.bottom){             
+                element=selectedTile;
+            }
+            });
+        }   
 
     findSelectedTile(game){
         let res;
@@ -387,9 +464,10 @@ class Game extends React.Component {
         selectedTile.angle = boardObj.startPos.angle;
         selectedTile.location = "board";
         game.boardTiles.push(selectedTile);
-        game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});     
+        game.playerTiles = game.playerTiles.filter((tile)=>{return this.checkTileLocation(tile,this.props.name)});  
         boardObj.updateBoard(selectedTile,boardPosition);
-        this.boardUpdateObj={selectedTile:selectedTile,position:{row: boardPosition.row,col: boardPosition.col}};
+        this.boardUpdateObj={boardTiles:game.boardTiles,selectedTile:selectedTile,position:{row: boardPosition.row,col: boardPosition.col},
+        movedAllDown:false,movedAllRight:false};
         game.board = boardObj.matrix;
         this.updateStatistics(game);   
     }
@@ -461,29 +539,35 @@ class Game extends React.Component {
 
     
     render(){
-        return (
-            <div className="game">
-                <div className="firstRow">
-                    <Deck startNewGame={this.startNewGame.bind(this)} onClick={() => this.pullFromDeck()
-                     } 
-                     whosTurn={this.state.whosTurn}
-                     prevOnClickHandler={this.endGame === false ?
-                     this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 
-                     nextOnClickHandler={this.nextOnClickHandler.bind(this)}
-                     endGame={this.endGame}/>
-                    <Board  boardTiles={this.state.boardTiles} 
-                        possibleMoves={boardObj.possibleMoves} 
-                        possibleMoveOnClickHandler = {this.possibleMoveClickHandler.bind(this)}/>
-                    <Statistics statistics = {this.state.statistics} initClock={this.newGame} pauseClock ={this.endGame}/>
-                    </div> 
-                <div className="secondRow">
-                <Player playerTiles={this.state.playerTiles} 
-                    dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}
-                    myTurn={this.state.whosTurn === this.props.name ? true:false}
-                />
-                </div>    
-            </div>
-        )
+        if(this.state.allPlayersFinished===false){
+            return (
+                <div className="game">
+                    <div className="firstRow">
+                        <Deck startNewGame={this.startNewGame.bind(this)} onClick={() => this.pullFromDeck()
+                         } 
+                         whosTurn={this.state.whosTurn}
+                         prevOnClickHandler={this.endGame === false ?
+                         this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 
+                         nextOnClickHandler={this.nextOnClickHandler.bind(this)}
+                         endGame={this.endGame}/>
+                        <Board  boardTiles={this.state.boardTiles} 
+                            possibleMoves={boardObj.possibleMoves} 
+                            possibleMoveOnClickHandler = {this.possibleMoveClickHandler.bind(this)}/>
+                        <Statistics statistics = {this.state.statistics} initClock={this.newGame} pauseClock ={this.endGame}/>
+                        </div> 
+                    <div className="secondRow">
+                    <Player playerTiles={this.state.playerTiles} 
+                        dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}
+                        myTurn={this.state.whosTurn === this.props.name ? true:false}
+                    />
+                    </div>    
+                </div>
+            )
+        }
+        else{
+            return(<h1>Game Ended!!</h1>)
+        }
+    
     }
 }
 
