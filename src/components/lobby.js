@@ -69,7 +69,8 @@ export default class Lobby extends React.Component{
         })
     }
 
-    handleRoomEntering(roomId){
+
+    handleRoomEntering(roomId,observer){
         let user = {
             userName: this.props.userName,
             roomId: roomId
@@ -82,7 +83,7 @@ export default class Lobby extends React.Component{
             }
             else{
                 clearInterval(this.fetchRoomsInterval);
-                this.props.enteredRoomSuccessfully(roomId);
+                this.props.enteredRoomSuccessfully(roomId,observer);
             }
         })
     }

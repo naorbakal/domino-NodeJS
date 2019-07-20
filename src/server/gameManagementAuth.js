@@ -82,7 +82,7 @@ function whosTurn(req, res, next){
     const request = JSON.parse(req.body);
     const game = games.get(request.roomId);
     const player = game.players[game.turn];
-    res.json({player: player, boardTiles:game.boardTiles, endGame:game.endGame,
+    res.json({player: player, boardTiles:game.boardTiles,pulledFromDeckObj:game.pulledFromDeckObj ,endGame:game.endGame,
      outOfPlays: game.outOfPlays, winners: game.winners});
 }
 
@@ -98,7 +98,7 @@ function updateGame(req,res,next){
     if(index !==-1){
         game.players[index].statistics = request.statistics;  
         games.set(request.roomId,{players:game.players,boardTiles:request.boardTiles,dominoTiles:request.dominoTiles,turn:game.turn
-            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame});
+            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame,pulledFromDeckObj:request.pulledFromDeckObj});
         
         }
         next();     

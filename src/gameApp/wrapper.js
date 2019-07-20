@@ -16,7 +16,7 @@ function Wrapper(props){
     <React.Fragment> 
        <Header />
         <Game roomId ={props.roomId} name={props.playerName} 
-        handleExitRoom={props.handleExitRoom}/>
+        handleExitRoom={props.handleExitRoom} observer={props.observer}/>
     </React.Fragment>
     );
 };

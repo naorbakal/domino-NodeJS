@@ -13,7 +13,8 @@ export default class BaseContainer extends React.Component {
                 name: props.name,
                 location: props.location,
                 roomId: null,
-                inActiveGame: false
+                inActiveGame: false,
+                observer:false,
             }   
         };
         console.log(this.state.currentUser.location);
@@ -60,16 +61,18 @@ export default class BaseContainer extends React.Component {
             gameStarted={this.state.currentUser.inActiveGame} 
             roomId = {this.state.currentUser.roomId}
             playerName={this.state.currentUser.name} 
-            handleExitRoom = {this.handleExitRoom}/>
+            handleExitRoom = {this.handleExitRoom}
+            observer={this.state.currentUser.observer}/>
         }
 
     }
 
 
-    handleSuccessedRoomEntering(roomId){  
+    handleSuccessedRoomEntering(roomId,observer=false){  
         let user=this.state.currentUser;
         user.roomId=roomId;
         user.location="room";
+        user.observer=observer;
         this.gameStartedInterval=setInterval(() =>{
                     fetch('/rooms/checkRoomFull',{method: 'POST',body:JSON.stringify({name: roomId}), credentials: 'include'})
                     .then(response => {
@@ -169,7 +172,8 @@ export default class BaseContainer extends React.Component {
                         name: this.state.currentUser.name,
                         location: "lobby",
                         roomId: null,
-                        inActiveGame: false    
+                        inActiveGame: false ,
+                        observer:false   
                     } }));
             }
         })
