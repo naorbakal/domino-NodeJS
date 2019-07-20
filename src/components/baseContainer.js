@@ -14,9 +14,9 @@ export default class BaseContainer extends React.Component {
                 location: props.location,
                 roomId: null,
                 inActiveGame: false
-            }           
+            }   
         };
-        
+        console.log(props.location);
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);

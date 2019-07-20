@@ -591,7 +591,7 @@ class Game extends React.Component {
                 throw response;
             }
             else{
-                
+                this.quitGame();
             }
         })
     }
@@ -636,7 +636,9 @@ class Game extends React.Component {
         }
        } 
     else{
-        return (<BaseContainer name={this.state.name} location="lobby"/>)
+        return (
+        <BaseContainer name={this.state.name} location="lobby"/>
+        )
       }
     }
 }
