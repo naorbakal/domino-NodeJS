@@ -18,6 +18,8 @@ roomManagement.post('/checkRoomFull', roomAuth.checkRoomFull);
 
 roomManagement.post('/exitRoom', roomAuth.exitRoom, (req, res, next) => {
 	res.sendStatus(200)});
-	
+
+roomManagement.delete('/deleteRoom', roomAuth.deleteRoom, (req, res, next) => {
+	res.sendStatus(200)});
 
 module.exports = roomManagement;

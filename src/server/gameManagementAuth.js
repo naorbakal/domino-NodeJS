@@ -34,9 +34,8 @@ function outOfPlays(req,res,next){
     res.json({endGame:game.endGame})
 }
 
-
 function adjustNextPlayerIndex(nextPlayerName,game){
-    index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
+    let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
@@ -44,14 +43,12 @@ function setWinner(req,res,next){
     let nextPlayerName;
     const request = JSON.parse(req.body); 
     const game = games.get(request.roomId);
-    if(game.players.length !== game.winners.length + 1){
-        game.winners.push(request);
-        swapPlayers(game);
-        nextPlayerName=game.players[game.turn].player;
-        index=game.players.map((e) =>{ return e.player; }).indexOf(request.name);     
-        game.players.splice(index, 1)
-        adjustNextPlayerIndex(nextPlayerName,game);
-    }
+    game.winners.push(request);
+    swapPlayers(game);
+    nextPlayerName=game.players[game.turn].player;
+    index=game.players.map((e) =>{ return e.player; }).indexOf(request.name);     
+    game.players.splice(index, 1)
+    adjustNextPlayerIndex(nextPlayerName,game);
     if(game.players.length === 1){
         game.outOfPlays.push(game.players[0]);
         game.endGame=true;

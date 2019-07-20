@@ -579,8 +579,17 @@ class Game extends React.Component {
         }
         return res;
     }
-    quitGame(){
-        
+    
+    quitGameAndRemove(){
+        fetch('/rooms/deleteRoom', {method:'DELETE', body:JSON.stringify({roomId:this.state.roomId}), credentials: 'include'})
+        .then(response=> {            
+            if (!response.ok){
+                throw response;
+            }
+            else{
+                
+            }
+        })
     }
 
     
@@ -618,7 +627,7 @@ class Game extends React.Component {
             return( 
                 <div className="form">
                 {endGameStatItems}
-                <button onClick={this.quitGame} className="logout"> Quit </button>
+                <button onClick={this.quitGameAndRemove.bind(this)} className="logout"> Quit </button>
                 </div>
             )
         }

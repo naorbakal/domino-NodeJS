@@ -11,7 +11,6 @@ function userAuthentication(req, res, next) {
 }
 
 function addUserToAuthList(req, res, next) {
-	//console.log(userList[req.session.id]);
 	if(req.body === undefined || req.body === '' || !req.body.trim()){
 		res.status(405).send('name not allowed');
 	}
