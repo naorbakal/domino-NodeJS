@@ -10,12 +10,14 @@ import DominoTileObj from "./dominoTileTObj";
 import {boardObj} from "./boardObj";
 import Clock from './clock';
 import { type } from 'os';
+import BaseContainer from '../components/baseContainer';
 
 
 class Game extends React.Component {
     constructor(props){
         super(props);
         this.state={ 
+                    quitGame:false,
                     allPlayersFinished:false,
                     roomId: props.roomId,
                     name:props.name,
@@ -39,6 +41,8 @@ class Game extends React.Component {
         this.firstPlayer=false;
         this.performUpdate=false;
         this.boardUpdateObj=null;
+        this.winnersArr = new Array();
+        this.outOfPlaysArr = new Array();
 
     }
 
@@ -104,7 +108,10 @@ class Game extends React.Component {
             .then(response =>{
                 response.json().then(resJson =>{
                     if(resJson.endGame===true){
-                        this.setState({allPlayersFinished:true});        
+                        this.winnersArr = resJson.winners;
+                        this.outOfPlaysArr = resJson.outOfPlays;  
+                        this.setState({allPlayersFinished:true});     
+
                     }
                     else{
                         if(resJson.player.player === this.props.name){
@@ -134,7 +141,7 @@ class Game extends React.Component {
                                         this.setState({whosTurn:this.props.name,
                                                      dominoTiles:resJson.dominoTiles
                                                     });
-                                    }
+                                    }  
                                 })
                             });
                             clearInterval(myTurn);
@@ -151,7 +158,7 @@ class Game extends React.Component {
                             
                         }
                     }
-                  
+
                 })     
             }); 
         },2000);
@@ -540,13 +547,50 @@ class Game extends React.Component {
             }
     }
 
+    getEndGameStatItems(){
+        let res = new Array();
+        let place = 1;
+        for(var i=0; i<this.winnersArr.length; i++){
+            //res.push({name: this.winnersArr.player ,statistics: this.winnersArr.statistics});
+            res.push(
+            <div>
+            <h2> In The {place} Place</h2>
+            <h3> Name: {this.winnersArr[i].name} </h3>
+            <h3> Total turns: {this.winnersArr[i].statistics.turnsSoFar}</h3>
+            <h3> Average Play Time: {this.winnersArr[i].statistics.averagePlayTime} </h3>
+            <h3> Withdrawals: {this.winnersArr[i].statistics.withdrawals} </h3>
+            <h3> Score: {this.winnersArr[i].statistics.score} </h3> 
+            </div>
+            );
+            place++;
+        }
+        for(var i=0; i<this.outOfPlaysArr.length; i++){
+            res.push(
+                <div>
+                <h2> In The {place} Place</h2>
+                <h3> Name: {this.outOfPlaysArr[i].player} </h3>
+                <h3> Total turns: {this.outOfPlaysArr[i].statistics.turnsSoFar}</h3>
+                <h3> Average Play Time: {this.outOfPlaysArr[i].statistics.averagePlayTime} </h3>
+                <h3> Withdrawals: {this.outOfPlaysArr[i].statistics.withdrawals} </h3>
+                <h3> Score: {this.outOfPlaysArr[i].statistics.score} </h3> 
+                </div>
+            );
+            place++;
+        }
+        return res;
+    }
+    quitGame(){
+        this.setState({quitGame:true});   
+    }
+
     
     render(){
+    if(this.state.quitGame===false){
         if(this.state.allPlayersFinished===false){
             return (
                 <div className="game">
                     <div className="firstRow">
-                        <Deck startNewGame={this.startNewGame.bind(this)} 
+                        <Deck quitGame={this.quitGame.bind(this)} 
                          onClick={this.state.whosTurn === this.props.name ? () => {this.pullFromDeck();}:()=>{ alert("Not your Turn");}}
                          whosTurn={this.state.whosTurn}
                          myTurn={this.state.whosTurn === this.props.name ? true:false}
@@ -569,9 +613,20 @@ class Game extends React.Component {
             )
         }
         else{
-            return(<h1>Game Ended!!</h1>)
+
+            let endGameStatItems = this.getEndGameStatItems();
+
+            return( 
+                <div className="form">
+                {endGameStatItems}
+                <button onClick={this.quitGameAndRemove} className="logout"> Quit </button>
+                </div>
+            )
         }
-    
+       } 
+    else{
+        return (<BaseContainer name={this.state.name} location="lobby"/>)
+      }
     }
 }
 

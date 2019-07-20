@@ -10,8 +10,8 @@ export default class BaseContainer extends React.Component {
         super(props);
         this.state = {
             currentUser: {
-                name: '',
-                location: "login",
+                name: props.name,
+                location: props.location,
                 roomId: null,
                 inActiveGame: false
             }           

@@ -27,7 +27,7 @@ function Deck(props) {
             <button className="dominoTile " onClick= {props.onClick}>   
             </button> 
             <div className={buttonClass +" arrow-right"} onClick={()=>props.nextOnClickHandler()}></div>  
-            <button className={buttonClass + " newGame"} onClick={()=>props.startNewGame()}>Start New Game</button>         
+            <button className={buttonClass + " logout"} onClick={()=>props.quitGame()}>Quit Game</button>         
         </div>
     )
 }    

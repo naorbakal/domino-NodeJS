@@ -34,14 +34,15 @@ class SignUp extends React.Component {
                 this.setState(()=> ({errMessage: ""}));
                 this.props.loginSuccessHandler();
             } else {
-                if (response.status === 403) {
+                if (response.status === 405) {              
+                    this.setState(()=> ({errMessage: "Please insert name"}));
+                }else{
                     this.setState(()=> ({errMessage: "User name already exist, please try another one"}));
                 }
-                this.props.loginErrorHandler();
             }
+                this.props.loginErrorHandler();
         });
         return false;
-
     }
 }
 

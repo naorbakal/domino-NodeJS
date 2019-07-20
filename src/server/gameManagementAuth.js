@@ -36,7 +36,7 @@ function outOfPlays(req,res,next){
 
 
 function adjustNextPlayerIndex(nextPlayerName,game){
-    index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
+    let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
@@ -82,7 +82,8 @@ function whosTurn(req, res, next){
     const request = JSON.parse(req.body);
     const game = games.get(request.roomId);
     const player = game.players[game.turn];
-    res.json({player:player,boardTiles:game.boardTiles,endGame:game.endGame});
+    res.json({player: player, boardTiles:game.boardTiles, endGame:game.endGame,
+     outOfPlays: game.outOfPlays, winners: game.winners});
 }
 
 
