@@ -7,6 +7,8 @@ gameManagement.post('/startGame',gameManagementAuth.startGame ,(req, res,next) =
     res.sendStatus(201);
 });
 
+gameManagement.post('/getGamePlayers',gameManagementAuth.getGamePlayers);
+
 gameManagement.post('/firstPlayer',gameManagementAuth.firstPlayer ,(req, res,next) => {
     res.sendStatus(200);
 });
@@ -27,5 +29,8 @@ gameManagement.post('/updateGame',gameManagementAuth.updateGame ,(req, res,next)
     res.sendStatus(200);
 });
 gameManagement.post('/getGameData',gameManagementAuth.getGameData);
+
+gameManagement.delete('/deleteGame', gameManagementAuth.deleteGame, (req, res, next) => {
+	res.sendStatus(200)});
 
 module.exports = gameManagement;

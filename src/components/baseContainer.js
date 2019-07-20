@@ -17,7 +17,6 @@ export default class BaseContainer extends React.Component {
                 observer:false,
             }   
         };
-        console.log(this.state.currentUser.location);
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
@@ -27,12 +26,6 @@ export default class BaseContainer extends React.Component {
         this.gameStartedInterval;
         this.getUserData();
     }
-
-    /*
-    componentWillUnmount(){
-        clearInterval(this.gameStartedInterval);
-    }
-    */
 
     componentDidUpdate(){
         return fetch('/users/updateUser',{method: 'POST', body:JSON.stringify(this.state.currentUser), credentials: 'include'})
@@ -138,14 +131,6 @@ export default class BaseContainer extends React.Component {
                 let user = this.state.currentUser;
                 user.name = '';
                 user.location = "login";
-
-                /*
-                let user = {
-                    name: '',
-                    location: "login",
-                    roomId: null
-                }
-                */
                 this.setState(()=>({ currentUser : user }));
             }
         })
@@ -161,13 +146,6 @@ export default class BaseContainer extends React.Component {
                     throw response;
                 }  
                 else{
-                    /*
-                    let user = {
-                        location: "lobby",
-                        roomId: null,
-                        inActiveGame: false                       
-                    };
-                    */
                     this.setState(()=>({ currentUser:{ 
                         name: this.state.currentUser.name,
                         location: "lobby",

@@ -8,6 +8,11 @@ userManagement.get('/', auth.userAuthentication, (req, res) => {
 	res.json(userinfo);
 });
 
+userManagement.get('/list', (req,res) => {
+	let userNames = auth.getUsers();
+	res.json(userNames);
+});
+
 userManagement.post('/addUser', auth.addUserToAuthList, (req, res) => {		
 	res.sendStatus(200);	
 });

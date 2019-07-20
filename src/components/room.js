@@ -19,7 +19,11 @@ function Room(props){
     }
 
     if(props.data.started){
-        roomStatus = <div><button onClick={handleObserverEntering}>Watch</button><p>Game Already Started</p></div>;
+        roomStatus = <div>
+        <p>Game Already Started</p>
+        <button onClick={handleObserverEntering} className="enter-room-btn"> Watch Game </button>
+        </div>
+
     }
     else{
         roomStatus = <div>

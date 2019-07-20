@@ -7,6 +7,11 @@ import DominoTile from './dominoTile';
 function Deck(props) {   
     let buttonClass; 
     let turnBanner;     
+
+    let players = props.players.map(player => {
+        return <h4> {player} </h4>;
+    });
+
     if(props.endGame === true){
         buttonClass = " ";
     }
@@ -22,6 +27,9 @@ function Deck(props) {
     }
     return(
         <div className="panel deck">
+            <div>
+            {players}
+            </div>
             <h4>{turnBanner}</h4>
             <div className="arrow-left" onClick={()=>props.prevOnClickHandler()}></div>          
             <button className="dominoTile " onClick= {props.onClick}>   

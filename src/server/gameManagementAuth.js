@@ -2,9 +2,12 @@ const roomAuth = require('./roomAuth');
 
 const games = new Map();
 
-let wasAwinner = false;
 
-
+function getGamePlayers(req,res,next){
+    const request = JSON.parse(req.body);
+    let players = roomAuth.getRoomPlayers(request.roomId);
+    res.json({players:players})
+}
 function startGame(req,res,next){
     const request = JSON.parse(req.body);
     let players = roomAuth.getRoomPlayers(request.roomId);
@@ -14,7 +17,7 @@ function startGame(req,res,next){
     let winners=new Array();
     if(games.get(request.roomId) === undefined){
         games.set(request.roomId,{players:players,boardTiles:null,dominoTiles:null, turn:0
-        ,winners:winners,outOfPlays:new Array(),endGame:false});
+        ,winners:winners,outOfPlays:new Array(),endGame:false,wasAwinner:false});
         next();
     }
     else{
@@ -37,15 +40,15 @@ function outOfPlays(req,res,next){
 }
 
 function adjustNextPlayerIndex(nextPlayerName,game){
-    let index=game.players.map((e) =>{ return e.player; }).indexOf(nextPlayerName);  
+    let index=game.players.map((e) =>{ return e.player;}).indexOf(nextPlayerName);  
     game.turn=index;   
 }
 function setWinner(req,res,next){
-    wasAwinner = true;
     let index;
     let nextPlayerName;
     const request = JSON.parse(req.body); 
     const game = games.get(request.roomId);
+    game.wasAwinner = true;
     game.winners.push(request);
     swapPlayers(game);
     nextPlayerName=game.players[game.turn].player;
@@ -90,16 +93,15 @@ function whosTurn(req, res, next){
 function updateGame(req,res,next){
     const request = JSON.parse(req.body);
     const game=games.get(request.roomId);
-    if(!wasAwinner){
+    if(!game.wasAwinner){
         swapPlayers(game);
-        wasAwinner = false;
     }
     let index=game.players.map((e) =>{ return e.player; }).indexOf(request.player); 
     if(index !==-1){
         game.players[index].statistics = request.statistics;  
         games.set(request.roomId,{players:game.players,boardTiles:request.boardTiles,dominoTiles:request.dominoTiles,turn:game.turn
-            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame,pulledFromDeckObj:request.pulledFromDeckObj});
-        
+            ,winners:game.winners,outOfPlays:new Array(),endGame:game.endGame,pulledFromDeckObj:request.pulledFromDeckObj,wasAwinner:game.wasAwinner});
+
         }
         next();     
 }
@@ -117,5 +119,11 @@ function swapPlayers(game){
     }
 }
 
-module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate}
+function deleteGame(req,res,next){
+    const request = JSON.parse(req.body);
+    games.delete(request.roomId); 
+    next();
+}
+
+module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate, getGamePlayers, deleteGame}
 

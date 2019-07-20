@@ -6,6 +6,7 @@ export default class Lobby extends React.Component{
     constructor(props){
         super(props);
         this.state = {
+            users: new Array(),
             showAddRoom : false,
             rooms : new Array(),
             errMessage: ''
@@ -14,6 +15,10 @@ export default class Lobby extends React.Component{
         this.fetchRoomsInterval;
         this.fetchRoomsInterval = setInterval(()=>{
             this.getRooms();
+        },2000);
+
+        this.fetchUsersInterval = setInterval(() => {
+            this.getUsers();
         },2000);
 
         this.handleAddRoom = this.handleAddRoom.bind(this);
@@ -43,6 +48,30 @@ export default class Lobby extends React.Component{
                     return response.json();             
                 });
      
+        }
+        
+        getUsers() {
+            this.fetchUsersInfo()
+            .then(users => {
+                let usersArr = JSON.parse(users);
+                this.setState(()=>({users: usersArr}));
+            })
+            .catch(err=>{            
+                if (err.status !== 401) { // incase we're getting 'unautorithed' as response
+                    throw err;
+                     // in case we're getting an error
+                }
+            });
+        }
+    
+        fetchUsersInfo(){ 
+            return fetch('/users/list',{method: 'GET', credentials: 'include'})
+                .then(response => {            
+                    if (!response.ok){
+                        throw response;
+                    }              
+                    return response.json();             
+                });
         }
 
     handleAddRoom(e){
@@ -90,6 +119,7 @@ export default class Lobby extends React.Component{
 
     componentWillUnmount(){
         clearInterval(this.fetchRoomsInterval); 
+        clearInterval(this.fetchUsersInterval);
     }
     
     render(){
@@ -104,19 +134,25 @@ export default class Lobby extends React.Component{
                     />
                 });
             }
-
+        let userItems = this.state.users.map((user) => {
+            return <p key={user}> {user},</p>;
+        })
         return(
         <React.Fragment>
         <button onClick={() => this.setState(() => ({showAddRoom: true}))} className="add-room"> Add Room </button>
         <button onClick={this.props.logout} className="logout"> Logout </button>
-        <div>
-            {roomItems}
-            
+        <div className="firstRow">
+            {roomItems}            
+        </div>
+        <div className="secondRow">
+        <footer className="player">
+            {userItems}
+        </footer>
         </div>
         
         </React.Fragment>)
         }
-        else{ //showAddRoom = true
+        else{
             return(
             <div>
                 <form onSubmit={this.handleAddRoom} className="form">
