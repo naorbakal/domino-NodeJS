@@ -7,6 +7,7 @@ import { type } from 'os';
 function Room(props){
     let roomStatus;
     let players = props.data.players.map(player => {return <h3 key={player}>{player} </h3>});
+    let observers = props.data.observers.map(observer => {return <h3 key={observer}>{observer} </h3>});
     let handleRoomEntering = (e)=>{
         e.preventDefault();
         props.handleRoomEntering(props.data.Id,false);
@@ -29,6 +30,7 @@ function Room(props){
         roomStatus = <div>
             <p>Waiting for players....</p>
             <button onClick={handleRoomEntering} className="enter-room-btn"> Enter Room </button>
+            <button onClick={handleObserverEntering} className="enter-room-btn"> Watch Game </button>
             </div>
     }
 
@@ -40,6 +42,8 @@ function Room(props){
         <p> creator: {props.data.creator} </p> <br/>
         <p> players:  </p>  <br/>
         {players} <br/>
+        <p> observers:  </p>  <br/>
+        {observers} <br/>
         {roomStatus}
         </div>
 

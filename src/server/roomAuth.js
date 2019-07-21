@@ -9,11 +9,25 @@ function addUserToRoom(req,res,next){
     request = JSON.parse(req.body);
     roomsList.forEach((room)=>{
         if (room.Id === request.roomId){
-            room.players.push(request.userName);
-            if(room.amountOfPlayers === room.players.length){
-                room.started = true;
+            if(request.observer ===false){
+                room.players.push(request.userName);
+                if(room.amountOfPlayers === room.players.length){
+                    room.started = true;
+                }
+                next();
             }
-            next();
+            else{
+                let exist=false
+                room.observers.forEach((observer)=>{
+                    if (observer === request.userName){
+                        exist=true;
+                    }
+                });
+                if(!exist){
+                    room.observers.push(request.userName);
+                }
+                next(); 
+            } 
         }
     });
 }
@@ -39,6 +53,7 @@ function addRoomToList(req, res, next) {
             creator: request.creator,
             amountOfPlayers: request.amountOfPlayers,
             players: new Array(),
+            observers:new Array(),
             started: false
         }); 
         next();
@@ -72,6 +87,16 @@ function addRoomToList(req, res, next) {
     return players;    
 }
 
+function getObservers(roomId){
+    let observers=null;
+    roomsList.forEach((room)=>{
+        if (room.Id === roomId){
+            observers= room.observers;
+        }
+    });
+    return observers;
+}
+
   function exitRoom(req, res, next){
     const request = JSON.parse(req.body);
 
@@ -81,6 +106,10 @@ function addRoomToList(req, res, next) {
                 if(room.players[i] === request.playerToRemove){
                    room.players.splice(i,1);
                    break;
+                }
+                else if(room.observers[i] === request.playerToRemove){
+                    room.observers.splice(i,1);
+                    break;
                 }
             }
         }
@@ -99,6 +128,6 @@ function addRoomToList(req, res, next) {
   }
 
 
-   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull, exitRoom, getRoomPlayers, deleteRoom};
+   module.exports = {addRoomToList, getLobbyRooms, addUserToRoom,checkRoomFull, exitRoom,getObservers ,getRoomPlayers, deleteRoom};
     
 

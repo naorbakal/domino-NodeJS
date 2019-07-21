@@ -23,10 +23,15 @@ export default class BaseContainer extends React.Component {
         this.logoutHandler= this.logoutHandler.bind(this);
         this.handleExitRoom = this.handleExitRoom.bind(this);
         this.handleSuccessedRoomEntering= this.handleSuccessedRoomEntering.bind(this);
-        this.gameStartedInterval;
+        this.gameStartedInterval=null;
         this.getUserData();
     }
 
+    componentWillUnmount(){
+        if(this.gameStartedInterval!==null){
+            clearInterval(this.gameStartedInterval);
+        }
+    }
     componentDidUpdate(){
         return fetch('/users/updateUser',{method: 'POST', body:JSON.stringify(this.state.currentUser), credentials: 'include'})
         .then(response => {            

@@ -38,7 +38,6 @@ class Game extends React.Component {
                 };
         this.needDraw = false;
         this.gameStartingTime;
-        this.history = new Array();
         this.endGame = false;
         this.newGame = true;
         this.firstPlayer=false;
@@ -49,11 +48,18 @@ class Game extends React.Component {
         this.outOfPlaysArr = new Array();
         this.handleExitRoom = this.props.handleExitRoom;
         this.players = new Array();
+        this.observers = new Array();
         this.checkBoardChangesInterval;
         this.myTurn1;
         this.myTurn2;
-        console.log(this.winnersArr);
+        this.getGameObservers = this.getGameObservers.bind(this);
+        this.observersInterval=setInterval(()=>{
+            this.getGameObservers();
+        },2000);
+
         this.getGamePlayers();
+        this.getGameObservers();
+
 
     }
 
@@ -63,11 +69,20 @@ class Game extends React.Component {
         fetch('/games/getGamePlayers', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
         .then((res)=>{
             res.json().then(resJson =>{
-                console.log(resJson);
                 this.players = resJson.players;
             })
         })
     }
+
+    getGameObservers(){
+        fetch('/games/getObservers', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
+        .then((res)=>{
+            res.json().then(resJson =>{
+                this.observers = resJson.observers;
+            })
+        })
+    }
+
 
     getUsers() {
         this.fetchUsersInfo()
@@ -89,6 +104,7 @@ class Game extends React.Component {
         clearInterval(this.myTurn1);
         clearInterval(this.myTurn2);
         clearInterval(this.roomPlayers);
+        clearInterval(this.observersInterval);
     }
 
     componentDidMount(){
@@ -253,7 +269,6 @@ class Game extends React.Component {
                 }
             })
         })
-            this.history.push(game)
     }
         else{
             this.performUpdate=true;
@@ -262,7 +277,6 @@ class Game extends React.Component {
                 fetch('/games/outOfPlays', {method:'POST', body:JSON.stringify({roomId:this.props.roomId,player:this.props.name,statistics:game.statistics}), credentials: 'include'})
                 alert("You have no moves");
                 this.update();
-                this.history.push(game);
             }
         }
 
@@ -273,10 +287,14 @@ class Game extends React.Component {
             fetch('/games/checkBoardUpdate', {method:'POST', body:JSON.stringify({roomId:this.props.roomId}), credentials: 'include'})
             .then((res)=>{
                 res.json().then((resJson)=>{
-                    this.setState({boardTiles:resJson.boardTiles.boardTiles});
-                    if(resJson.endGame===true){
-                        this.setState({allPlayersFinished:true});
-                        clearInterval(this.checkBoardChangesInterval);
+                    if(resJson.boardTiles!==null){
+                        this.setState({boardTiles:resJson.boardTiles.boardTiles});
+                        if(resJson.endGame===true){
+                            this.winnersArr = resJson.winners;
+                            this.outOfPlaysArr = resJson.outOfPlays; 
+                            this.setState({allPlayersFinished:true});
+                            clearInterval(this.checkBoardChangesInterval);
+                        }
                     }
                 });
             });
@@ -294,7 +312,6 @@ class Game extends React.Component {
         let score = this.getPlayerScore(playerTiles);
         this.endGame = false;
         this.newGame = false;
-        this.history = new Array();
         
         if(this.firstPlayer===false){
             boardObj.isEmpty = false
@@ -377,7 +394,6 @@ class Game extends React.Component {
     pullFromDeck(){
         if(this.needDraw === true){
             let game = this.deepCopy(this.state);
-            this.history.push(this.state);
             let newTile = this.chooseRandomTile(game.dominoTiles);
             this.pulledFromDeckObj=newTile;
             game.playerTiles.push(newTile);
@@ -446,7 +462,6 @@ class Game extends React.Component {
 
     possibleMoveClickHandler(selectedPossibleMove){
         let game = this.deepCopy(this.state);
-        this.history.push(this.state);
         let selectedTile = this.findSelectedTile(game);
         let movedAllRight=false;
         let movedAllDown=false
@@ -527,7 +542,6 @@ class Game extends React.Component {
 
     firstTurn(game, selectedTile){
         game.boardTiles = new Array();
-        this.history.push(this.state);
         let boardPosition = {row:28, col:28, tile:selectedTile};
         selectedTile.position.top = boardObj.startPos.top;
         selectedTile.position.left = boardObj.startPos.left;
@@ -553,57 +567,7 @@ class Game extends React.Component {
             }            
         });
     }
-
-    undoOnClickHandler(){
-        let index = this.state.statistics.turnsSoFar -1;
-        if(index < 0){
-            alert("You can't go back");
-        }
-        else{
-
-            if(index === 0){
-                boardObj.isEmpty = true;
-            }
-
-            boardObj.matrix = this.deepCopy(this.history[index].board);
-            this.setState({ dominoTiles: this.history[index].dominoTiles,
-                playerTiles: this.history[index].playerTiles,
-                boardTiles: this.history[index].boardTiles,
-                board: this.history[index].board,
-                statistics: this.history[index].statistics,
-            });
-            this.history.pop();       
-        }     
-    }
         
-    prevOnClickHandler(){
-        let index = this.state.statistics.turnsSoFar -1;
-        if(index < 0){
-            alert("You can't go back");
-        }
-        else{
-            this.setState({ dominoTiles: this.history[index].dominoTiles,
-                playerTiles: this.history[index].playerTiles,
-                boardTiles: this.history[index].boardTiles,
-                board: this.history[index].board,
-                statistics: this.history[index].statistics,
-            });
-    }
-    }
-    nextOnClickHandler(){
-        let index = this.state.statistics.turnsSoFar + 1;
-        if(this.history.length <= index ){
-            alert("You can't go further");
-        }
-        else{
-            this.setState({ dominoTiles: this.history[index].dominoTiles,
-                playerTiles: this.history[index].playerTiles,
-                boardTiles: this.history[index].boardTiles,
-                board: this.history[index].board,
-                statistics: this.history[index].statistics,
-                });
-            }
-    }
 
     getEndGameStatItems(){
         let res = new Array();
@@ -671,11 +635,9 @@ class Game extends React.Component {
                          onClick={this.state.whosTurn === this.props.name ? () => {this.pullFromDeck();}:()=>{ alert("Not your Turn");}}
                          whosTurn={this.state.whosTurn}
                          players={this.players}
+                         observers={this.observers}
                          myTurn={this.state.whosTurn === this.props.name ? true:false}
-                         prevOnClickHandler={this.endGame === false ?
-                         this.undoOnClickHandler.bind(this) : this.prevOnClickHandler.bind(this)} 
-                         nextOnClickHandler={this.nextOnClickHandler.bind(this)}
-                         endGame={this.endGame}/>
+                         endGame={this.endGame || this.props.observer}/>
                         <Board  boardTiles={this.state.boardTiles} 
                             possibleMoves={boardObj.possibleMoves} 
                             possibleMoveOnClickHandler = {this.possibleMoveClickHandler.bind(this)}/>
@@ -683,7 +645,6 @@ class Game extends React.Component {
                         </div> 
                     <div className="secondRow">
                     <Player playerTiles={this.state.playerTiles} 
-                        dominoTileOnClickHandler = {this.dominoTileOnClickHandler.bind(this)}
                         dominoTileOnClickHandler={this.state.whosTurn === this.props.name ?this.dominoTileOnClickHandler.bind(this):
                         ()=>{ alert("Not your turn");} } 
                                           />

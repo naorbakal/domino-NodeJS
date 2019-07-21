@@ -8,6 +8,12 @@ function getGamePlayers(req,res,next){
     let players = roomAuth.getRoomPlayers(request.roomId);
     res.json({players:players})
 }
+
+function getObservers(req,res,next){
+    const request = JSON.parse(req.body);
+    let observers = roomAuth.getObservers(request.roomId);
+    res.json({observers:observers})
+}
 function startGame(req,res,next){
     const request = JSON.parse(req.body);
     let players = roomAuth.getRoomPlayers(request.roomId);
@@ -66,7 +72,7 @@ function checkBoardUpdate(req,res,next){
     const request = JSON.parse(req.body); 
     const game = games.get(request.roomId);
 
-    res.json({boardTiles:game.boardTiles,endGame:game.endGame});
+    res.json({boardTiles:game.boardTiles,endGame:game.endGame,outOfPlays: game.outOfPlays, winners: game.winners});
 }
 
 function checkEndGame(req,res,next){
@@ -125,5 +131,5 @@ function deleteGame(req,res,next){
     next();
 }
 
-module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate, getGamePlayers, deleteGame}
+module.exports = {startGame,checkEndGame, getGameData, updateGame, whosTurn, firstPlayer, setWinner,outOfPlays,checkBoardUpdate, getGamePlayers,getObservers ,deleteGame}
 

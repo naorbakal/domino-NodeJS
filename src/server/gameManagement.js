@@ -9,6 +9,8 @@ gameManagement.post('/startGame',gameManagementAuth.startGame ,(req, res,next) =
 
 gameManagement.post('/getGamePlayers',gameManagementAuth.getGamePlayers);
 
+gameManagement.post('/getObservers',gameManagementAuth.getObservers);
+
 gameManagement.post('/firstPlayer',gameManagementAuth.firstPlayer ,(req, res,next) => {
     res.sendStatus(200);
 });
