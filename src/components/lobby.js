@@ -12,7 +12,6 @@ export default class Lobby extends React.Component{
             errMessage: ''
         };
 
-        this.fetchRoomsInterval;
         this.fetchRoomsInterval = setInterval(()=>{
             this.getRooms();
         },2000);
@@ -98,20 +97,22 @@ export default class Lobby extends React.Component{
         })
     }
 
-    handleRoomEntering(roomId){
+
+    handleRoomEntering(roomId,observer){
         let user = {
             userName: this.props.userName,
-            roomId: roomId
+            roomId: roomId,
+            observer:observer
         };
 
         fetch('/rooms/enterRoom', {method:'POST',body: JSON.stringify(user) ,credentials: 'include'})
         .then(response => {
             if(!response.ok){
-                
+                clearInterval(this.fetchRoomsInterval);
             }
             else{
                 clearInterval(this.fetchRoomsInterval);
-                this.props.enteredRoomSuccessfully(roomId);
+                this.props.enteredRoomSuccessfully(roomId,observer);
             }
         })
     }
